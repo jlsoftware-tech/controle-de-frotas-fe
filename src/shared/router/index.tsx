@@ -6,7 +6,7 @@ import { AppLayout } from '@/shared/layout/AppLayout';
 // import { ProtectedRoute, RoleProtectedRoute } from "@/shared/router/ProtectedRoute";
 
 const Home = lazy(() => import('@/modules/home/pages/Home'));
-const Login = lazy(() => import('../../modules/auth/pages/Login.tsx'));
+const Login = lazy(() => import('../../modules/login/pages/Login.tsx'));
 
 function Router(): React.JSX.Element {
   const router = createBrowserRouter([

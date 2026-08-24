@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { validateToken } from '@/modules/auth/services/auth.service';
+import { validateToken } from '@/modules/login/services/login';
 
 export function useValidateToken() {
   return useQuery({
@@ -9,6 +9,6 @@ export function useValidateToken() {
       return response;
     },
     retry: false,
-    staleTime: 1000 * 60 * 15, // 15 minutos
+    staleTime: 1000 * 60 * 15,
   });
 }

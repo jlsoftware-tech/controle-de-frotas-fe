@@ -1,18 +1,11 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
 import { useNavigate } from 'react-router-dom';
 import { APP_ROUTES } from '@/shared/constants/urlRoutes';
 import { Button } from '@/shared/components/ui/button';
 import { Input, InputPassword } from '@/shared/components/ui/input';
 import { Truck, Mail, Lock } from 'lucide-react';
-
-const loginSchema = z.object({
-  email: z.string().min(1, 'O e-mail é obrigatório').email('Formato de e-mail inválido'),
-  password: z.string().min(6, 'A senha deve ter pelo menos 6 caracteres'),
-});
-
-type LoginFormValues = z.infer<typeof loginSchema>;
+import { loginSchema, type LoginFormValues } from '../schemas/login.schema';
 
 export default function Login() {
   const navigate = useNavigate();

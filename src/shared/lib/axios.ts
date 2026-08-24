@@ -1,5 +1,5 @@
 import axios, { type AxiosInstance } from 'axios';
-import useUserStore from '@/modules/auth/store/useUserStore';
+import useUserStore from '@/modules/login/store/useAuthStore';
 
 const URL_API = import.meta.env.VITE_URL_API;
 

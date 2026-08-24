@@ -1,7 +1,7 @@
 import { Navigate } from 'react-router-dom';
 import type { ReactNode } from 'react';
-import useUserStore from '@/modules/auth/store/useUserStore';
-import { useValidateToken } from '@/modules/auth/hooks/useValidateToken';
+import useUserStore from '@/modules/login/store/useAuthStore';
+import { useValidateToken } from '@/modules/login/hooks/useValidateToken';
 import Loading from '@/shared/components/Loading';
 
 export function ProtectedRoute({ children }: { children: ReactNode }) {
