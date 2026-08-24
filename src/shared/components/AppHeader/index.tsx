@@ -1,5 +1,5 @@
 import React from 'react';
-import { useLocation, Link } from 'react-router-dom';
+import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { SidebarTrigger } from '@/shared/components/ui/sidebar';
 import { Separator } from '@/shared/components/ui/separator';
 import {
@@ -11,11 +11,22 @@ import {
   BreadcrumbSeparator,
 } from '@/shared/components/ui/breadcrumb';
 import { Avatar, AvatarFallback, AvatarImage } from '@/shared/components/ui/avatar';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/shared/components/ui/dropdown-menu';
+import { User, LogOut } from 'lucide-react';
 import { ThemeToggle } from '../ThemeToggle';
 import { NAVIGATION_ITEMS } from '@/shared/constants/navigation';
+import { APP_ROUTES } from '@/shared/constants/urlRoutes';
 
 export function AppHeader() {
   const location = useLocation();
+  const navigate = useNavigate();
 
   let breadcrumbs: { title: string; url: string }[] = [];
   for (const item of NAVIGATION_ITEMS) {
@@ -39,8 +50,8 @@ export function AppHeader() {
     breadcrumbs = [{ title: 'Dashboard', url: '/' }];
 
   return (
-    <header className="sticky top-0 z-50 flex h-16 shrink-0 items-center gap-4 border-b bg-background/70 backdrop-blur-xl px-6 transition-all">
-      <SidebarTrigger className="-ml-2 hover:bg-muted" />
+    <header className="sticky top-0 z-50 flex h-16 shrink-0 items-center gap-4 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm px-6 transition-all">
+      <SidebarTrigger className="-ml-2 hover:bg-muted text-muted-foreground hover:text-foreground" />
       <Separator orientation="vertical" className="mr-2" />
       <Breadcrumb>
         <BreadcrumbList>
@@ -62,12 +73,43 @@ export function AppHeader() {
           ))}
         </BreadcrumbList>
       </Breadcrumb>
-      <div className="ml-auto flex items-center space-x-4">
+      <div className="ml-auto flex items-center space-x-2 sm:space-x-4">
         <ThemeToggle />
-        <Avatar className="h-8 w-8">
-          <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
-          <AvatarFallback>AD</AvatarFallback>
-        </Avatar>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Avatar className="h-8 w-8 cursor-pointer ring-offset-background transition-all hover:ring-2 hover:ring-ring hover:ring-offset-2">
+              <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
+              <AvatarFallback>AD</AvatarFallback>
+            </Avatar>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-60">
+            <DropdownMenuLabel className="font-normal">
+              <div className="flex flex-col space-y-1">
+                <p className="text-sm font-medium leading-none">Administrador</p>
+                <p className="text-xs leading-none text-muted-foreground">admin@jlsoftware.com</p>
+              </div>
+            </DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem className="cursor-pointer" asChild>
+              <Link to={APP_ROUTES.PROFILE} className="flex items-center w-full">
+                <User className="mr-2 h-4 w-4" />
+                <span>Perfil</span>
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              variant="destructive"
+              className="cursor-pointer"
+              onClick={() => {
+                console.log('Logout clicked');
+                navigate(APP_ROUTES.HOME);
+              }}
+            >
+              <LogOut className="mr-2 h-4 w-4" />
+              <span>Sair</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </header>
   );

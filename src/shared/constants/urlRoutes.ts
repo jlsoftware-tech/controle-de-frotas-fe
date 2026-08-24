@@ -7,6 +7,7 @@ export const APP_ROUTES = {
   DRIVERS_LIST: '/motoristas/lista',
   SCHEDULES: '/motoristas/escalas',
   SETTINGS: '/configuracoes',
+  PROFILE: '/perfil',
 };
 
 export type AppRoute = (typeof APP_ROUTES)[keyof typeof APP_ROUTES];
