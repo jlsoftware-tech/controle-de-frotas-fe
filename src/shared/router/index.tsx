@@ -1,7 +1,8 @@
 import Loading from '@/shared/components/Loading';
 import React, { lazy, Suspense } from 'react';
-import { Outlet, RouterProvider, createBrowserRouter } from 'react-router-dom';
+import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import { APP_ROUTES } from '@/shared/router/urlRoutes';
+import { AppLayout } from '@/shared/layout/AppLayout';
 // import { ProtectedRoute, RoleProtectedRoute } from "@/shared/router/ProtectedRoute";
 
 const Home = lazy(() => import('@/modules/home/pages/Home'));
@@ -10,7 +11,7 @@ function Router(): React.JSX.Element {
   const router = createBrowserRouter([
     {
       path: APP_ROUTES.HOME,
-      element: <Outlet />,
+      element: <AppLayout />,
       children: [
         {
           index: true,

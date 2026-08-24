@@ -6,9 +6,7 @@ type props = {
 
 export default function Loading(props: props) {
   return (
-    <div
-      className={`relative flex flex-1 ${props.className} p-4 transition duration-200`}
-    >
+    <div className={`relative flex flex-1 ${props.className} p-4 transition duration-200`}>
       <div className="flex flex-1 flex-col items-center justify-center">
         <svg
           className="animate-spin h-6 text-white"
