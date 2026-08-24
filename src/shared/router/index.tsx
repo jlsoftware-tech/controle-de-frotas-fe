@@ -1,7 +1,7 @@
 import Loading from '@/shared/components/Loading';
 import React, { lazy, Suspense } from 'react';
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
-import { APP_ROUTES } from '@/shared/router/urlRoutes';
+import { APP_ROUTES } from '@/shared/constants/urlRoutes';
 import { AppLayout } from '@/shared/layout/AppLayout';
 // import { ProtectedRoute, RoleProtectedRoute } from "@/shared/router/ProtectedRoute";
 

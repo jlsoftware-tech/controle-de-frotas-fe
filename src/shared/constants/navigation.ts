@@ -1,5 +1,5 @@
 import { Truck, Users, LayoutDashboard, Settings, Car, Wrench, Contact, CalendarClock } from 'lucide-react';
-import { APP_ROUTES } from '@/shared/router/urlRoutes';
+import { APP_ROUTES } from '@/shared/constants/urlRoutes';
 import type { ElementType } from 'react';
 
 export interface NavigationSubItem {
