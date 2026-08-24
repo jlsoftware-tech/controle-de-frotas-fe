@@ -17,8 +17,10 @@ import {
 import { Compass, ChevronRight } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/shared/components/ui/collapsible';
 import { NAVIGATION_ITEMS } from '@/shared/constants/navigation';
+import useUserStore from '@/modules/login/store/useAuthStore';
 
 export function AppSidebar() {
+  const user = useUserStore((s) => s.user);
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader className="border-b border-sidebar-border h-16 flex justify-center p-2">
@@ -34,8 +36,14 @@ export function AppSidebar() {
           <SidebarGroupLabel>Menu Principal</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu className="gap-1.5">
-              {NAVIGATION_ITEMS.map((item) => (
-                item.items && item.items.length > 0 ? (
+              {NAVIGATION_ITEMS.filter(
+                (item) => !item.allowedRoles || (user && item.allowedRoles.includes(user.role))
+              ).map((item) => {
+                const filteredSubItems = item.items?.filter(
+                  (subItem) => !subItem.allowedRoles || (user && subItem.allowedRoles.includes(user.role))
+                ) || [];
+
+                return filteredSubItems.length > 0 ? (
                   <Collapsible
                     key={item.title}
                     asChild
@@ -55,7 +63,7 @@ export function AppSidebar() {
                       </CollapsibleTrigger>
                       <CollapsibleContent>
                         <SidebarMenuSub>
-                          {item.items.map((subItem) => (
+                          {filteredSubItems.map((subItem) => (
                             <SidebarMenuSubItem key={subItem.title}>
                               <SidebarMenuSubButton asChild>
                                 <Link to={subItem.url} className="flex items-center gap-2">
@@ -82,8 +90,8 @@ export function AppSidebar() {
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
-                )
-              ))}
+                );
+              })}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

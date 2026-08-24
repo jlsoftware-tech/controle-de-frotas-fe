@@ -1,19 +1,6 @@
 import { Truck, Users, LayoutDashboard, Settings, Car, Wrench, Contact, CalendarClock } from 'lucide-react';
 import { APP_ROUTES } from '@/shared/constants/urlRoutes';
-import type { ElementType } from 'react';
-
-export interface NavigationSubItem {
-  title: string;
-  url: string;
-  icon: ElementType;
-}
-
-export interface NavigationItem {
-  title: string;
-  url: string;
-  icon: ElementType;
-  items?: NavigationSubItem[];
-}
+import type { NavigationItem } from '../types/navigationMenuItem';
 
 export const NAVIGATION_ITEMS: NavigationItem[] = [
   {
@@ -47,11 +34,13 @@ export const NAVIGATION_ITEMS: NavigationItem[] = [
         title: 'Lista de Motoristas',
         url: APP_ROUTES.DRIVERS_LIST,
         icon: Contact,
+        allowedRoles: ['ADMIN'],
       },
       {
         title: 'Escalas',
         url: APP_ROUTES.SCHEDULES,
         icon: CalendarClock,
+        allowedRoles: ['ADMIN'],
       },
     ],
   },
@@ -59,5 +48,6 @@ export const NAVIGATION_ITEMS: NavigationItem[] = [
     title: 'Configurações',
     url: APP_ROUTES.SETTINGS,
     icon: Settings,
+    allowedRoles: ['ADMIN'],
   },
 ];

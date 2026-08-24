@@ -3,10 +3,11 @@ import React, { lazy, Suspense } from 'react';
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import { APP_ROUTES } from '@/shared/constants/urlRoutes';
 import { AppLayout } from '@/shared/layout/AppLayout';
-// import { ProtectedRoute, RoleProtectedRoute } from "@/shared/router/ProtectedRoute";
+import { ProtectedRoute, RoleProtectedRoute } from "@/shared/router/ProtectedRoute";
 
 const Home = lazy(() => import('@/modules/home/pages/Home'));
 const Login = lazy(() => import('../../modules/login/pages/Login.tsx'));
+const Profile = lazy(() => import('@/modules/profile/pages/Profile'));
 
 function Router(): React.JSX.Element {
   const router = createBrowserRouter([
@@ -16,11 +17,27 @@ function Router(): React.JSX.Element {
     },
     {
       path: APP_ROUTES.HOME,
-      element: <AppLayout />,
+      element: (
+        <ProtectedRoute>
+          <AppLayout />
+        </ProtectedRoute>
+      ),
       children: [
         {
           index: true,
           element: <Home />,
+        },
+        {
+          path: APP_ROUTES.PROFILE,
+          element: <Profile />,
+        },
+        {
+          path: APP_ROUTES.SETTINGS,
+          element: (
+            <RoleProtectedRoute allowedRoles={['ADMIN']}>
+              <div className="p-8">Configurações (Acesso restrito: ADMIN)</div>
+            </RoleProtectedRoute>
+          ),
         },
       ],
     },

@@ -23,10 +23,13 @@ import { User, LogOut } from 'lucide-react';
 import { ThemeToggle } from '../ThemeToggle';
 import { NAVIGATION_ITEMS } from '@/shared/constants/navigation';
 import { APP_ROUTES } from '@/shared/constants/urlRoutes';
+import useUserStore from '@/modules/login/store/useAuthStore';
 
 export function AppHeader() {
   const location = useLocation();
   const navigate = useNavigate();
+  const user = useUserStore((s) => s.user);
+  const logout = useUserStore((s) => s.logout);
 
   let breadcrumbs: { title: string; url: string }[] = [];
   for (const item of NAVIGATION_ITEMS) {
@@ -78,15 +81,15 @@ export function AppHeader() {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Avatar className="h-8 w-8 cursor-pointer ring-offset-background transition-all hover:ring-2 hover:ring-ring hover:ring-offset-2">
-              <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
-              <AvatarFallback>AD</AvatarFallback>
+              <AvatarImage src="" alt={user?.name} />
+              <AvatarFallback>{user?.name?.substring(0, 2).toUpperCase() || 'AD'}</AvatarFallback>
             </Avatar>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-60">
             <DropdownMenuLabel className="font-normal">
               <div className="flex flex-col space-y-1">
-                <p className="text-sm font-medium leading-none">Administrador</p>
-                <p className="text-xs leading-none text-muted-foreground">admin@jlsoftware.com</p>
+                <p className="text-sm font-medium leading-none">{user?.name || 'Administrador'}</p>
+                <p className="text-xs leading-none text-muted-foreground">{user?.email || 'admin@jlsoftware.com'}</p>
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
@@ -101,8 +104,8 @@ export function AppHeader() {
               variant="destructive"
               className="cursor-pointer"
               onClick={() => {
-                console.log('Logout clicked');
-                navigate(APP_ROUTES.HOME);
+                logout();
+                navigate(APP_ROUTES.LOGIN);
               }}
             >
               <LogOut className="mr-2 h-4 w-4" />

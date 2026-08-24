@@ -6,9 +6,13 @@ import { Button } from '@/shared/components/ui/button';
 import { Input, InputPassword } from '@/shared/components/ui/input';
 import { Truck, Mail, Lock } from 'lucide-react';
 import { loginSchema, type LoginFormValues } from '../schemas/login.schema';
+import useUserStore from '../store/useAuthStore';
 
 export default function Login() {
   const navigate = useNavigate();
+  const setToken = useUserStore((s) => s.setToken);
+  const setUser = useUserStore((s) => s.setUser);
+
   const {
     register,
     handleSubmit,
@@ -24,6 +28,18 @@ export default function Login() {
   const onSubmit = async (data: LoginFormValues) => {
     // Simulando uma chamada de API
     await new Promise((resolve) => setTimeout(resolve, 1500));
+    
+    // Mock user data
+    setToken('mock-jwt-token-12345');
+    setUser({
+      id: '1',
+      name: 'Administrador do Sistema',
+      email: data.email,
+      role: 'ADMIN',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    });
+
     console.log('Login efetuado:', data);
     navigate(APP_ROUTES.HOME);
   };

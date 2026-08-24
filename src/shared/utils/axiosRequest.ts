@@ -1,14 +1,6 @@
 import getAxios from '@/shared/lib/axios';
 import axios, { AxiosError } from 'axios';
-import type { TypeOptions } from 'react-toastify';
-
-export type ApiResponse<T> = {
-  success: boolean;
-  message: string;
-  data?: T;
-  type?: TypeOptions | 'loading' | 'dismiss';
-  error?: unknown;
-};
+import type { ApiResponse } from '../types/responseApi';
 
 function handleError(err: unknown): ApiResponse<never> {
   if (axios.isAxiosError(err)) {
@@ -20,7 +12,6 @@ function handleError(err: unknown): ApiResponse<never> {
       type: 'error',
     };
   }
-
   return {
     success: false,
     message: 'Erro inesperado',
