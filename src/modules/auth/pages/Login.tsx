@@ -4,11 +4,13 @@ import { useNavigate, Link } from 'react-router-dom';
 import { APP_ROUTES } from '@/shared/constants/urlRoutes';
 import { Button } from '@/shared/components/ui/button';
 import { Input, InputPassword } from '@/shared/components/ui/input';
-import { Truck, Mail, Lock } from 'lucide-react';
+import { Mail, Lock } from 'lucide-react';
 import { loginSchema, type LoginFormValues } from '@/modules/auth/schemas/login.schema';
 import useAuthStore from '@/modules/auth/store/useAuthStore';
 import { useLogin } from '@/modules/auth/hooks/useLogin';
 import useToastLoading from '@/shared/hooks/useToastLoading';
+import logo from '@/assets/logo.png';
+import { ThemeToggle } from '@/shared/components/ThemeToggle';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -49,11 +51,18 @@ export default function Login() {
         {/* Efeito de Gradiente no Fundo */}
         <div className="absolute inset-0 bg-gradient-to-br from-primary/30 to-black/80 z-0 pointer-events-none"></div>
         
-        <div className="relative z-10 flex items-center gap-3">
-          <div className="p-2.5 bg-primary rounded-xl shadow-lg shadow-primary/20">
-            <Truck className="h-7 w-7 text-primary-foreground" />
+        <div className="relative z-10 flex items-center gap-4">
+          <div className="flex items-center justify-center p-2.5 bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl shadow-xl">
+            <img src={logo} alt="Logo" className="w-20 h-auto object-contain drop-shadow-md" />
           </div>
-          <span className="text-2xl font-bold tracking-tight">Control Frotas</span>
+          <div className="flex flex-col">
+            <span className="text-2xl font-extrabold tracking-tight text-white drop-shadow-sm leading-none mb-1">
+              Control Frotas
+            </span>
+            <span className="text-[10px] font-medium text-zinc-400 uppercase tracking-widest">
+              Gestão Inteligente
+            </span>
+          </div>
         </div>
 
         <div className="relative z-10 mb-20">
@@ -72,14 +81,25 @@ export default function Login() {
 
       {/* Lado Direito - Formulário de Login */}
       <div className="flex-1 flex items-center justify-center p-8 sm:p-12 relative">
-        <div className="w-full max-w-md flex flex-col gap-10">
+        <div className="absolute top-8 right-8">
+          <ThemeToggle />
+        </div>
+        
+        <div className="w-full max-w-md flex flex-col gap-10 mt-8 md:mt-0">
           
           {/* Mobile Logo */}
-          <div className="md:hidden flex items-center gap-3 justify-center mb-4">
-            <div className="p-2.5 bg-primary rounded-xl shadow-sm">
-              <Truck className="h-6 w-6 text-primary-foreground" />
+          <div className="md:hidden flex items-center gap-4 justify-center mb-6">
+            <div className="flex items-center justify-center p-2 bg-primary/5 border border-primary/10 rounded-xl shadow-sm">
+              <img src={logo} alt="Logo" className="w-16 h-auto object-contain" />
             </div>
-            <span className="text-2xl font-bold tracking-tight text-foreground">Control Frotas</span>
+            <div className="flex flex-col text-left">
+              <span className="text-2xl font-extrabold tracking-tight text-foreground leading-none mb-1">
+                Control Frotas
+              </span>
+              <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-widest">
+                Gestão Inteligente
+              </span>
+            </div>
           </div>
 
           <div className="flex flex-col gap-2 text-center md:text-left">

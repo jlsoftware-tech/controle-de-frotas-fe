@@ -14,21 +14,29 @@ import {
   SidebarMenuSubItem,
   SidebarMenuSubButton,
 } from '@/shared/components/ui/sidebar';
-import { Compass, ChevronRight } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/shared/components/ui/collapsible';
 import { NAVIGATION_ITEMS } from '@/shared/constants/navigation';
 import useAuthStore from '@/modules/auth/store/useAuthStore';
+import logo from '@/assets/logo.png';
 
 export function AppSidebar() {
   const user = useAuthStore((s) => s.user);
   return (
     <Sidebar collapsible="icon">
-      <SidebarHeader className="border-b border-sidebar-border h-16 flex justify-center p-2">
-        <div className="flex items-center justify-center gap-2 font-bold text-lg text-sidebar-primary">
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-            <Compass className="h-5 w-5" />
-          </div>
-          <span className="truncate group-data-[collapsible=icon]:hidden">Control Frotas</span>
+      <SidebarHeader className="border-b border-sidebar-border py-6 flex flex-col items-center justify-center gap-3 overflow-hidden group-data-[collapsible=icon]:py-4">
+        <img 
+          src={logo} 
+          alt="Logo" 
+          className="w-36 h-auto shrink-0 object-contain drop-shadow-sm group-data-[collapsible=icon]:w-8 transition-all" 
+        />
+        <div className="flex flex-col items-center text-center group-data-[collapsible=icon]:hidden">
+          <span className="font-black text-xl text-sidebar-primary tracking-tight leading-none">
+            Control Frotas
+          </span>
+          <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-widest mt-1">
+            Gestão Inteligente
+          </span>
         </div>
       </SidebarHeader>
       <SidebarContent>
