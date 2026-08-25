@@ -17,10 +17,10 @@ import {
 import { Compass, ChevronRight } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/shared/components/ui/collapsible';
 import { NAVIGATION_ITEMS } from '@/shared/constants/navigation';
-import useUserStore from '@/modules/login/store/useAuthStore';
+import useAuthStore from '@/modules/auth/store/useAuthStore';
 
 export function AppSidebar() {
-  const user = useUserStore((s) => s.user);
+  const user = useAuthStore((s) => s.user);
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader className="border-b border-sidebar-border h-16 flex justify-center p-2">

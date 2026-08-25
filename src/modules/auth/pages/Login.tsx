@@ -1,17 +1,20 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { APP_ROUTES } from '@/shared/constants/urlRoutes';
 import { Button } from '@/shared/components/ui/button';
 import { Input, InputPassword } from '@/shared/components/ui/input';
 import { Truck, Mail, Lock } from 'lucide-react';
-import { loginSchema, type LoginFormValues } from '../schemas/login.schema';
-import useUserStore from '../store/useAuthStore';
+import { loginSchema, type LoginFormValues } from '@/modules/auth/schemas/login.schema';
+import useAuthStore from '@/modules/auth/store/useAuthStore';
+import { useLogin } from '@/modules/auth/hooks/useLogin';
+import useToastLoading from '@/shared/hooks/useToastLoading';
 
 export default function Login() {
   const navigate = useNavigate();
-  const setToken = useUserStore((s) => s.setToken);
-  const setUser = useUserStore((s) => s.setUser);
+  const setToken = useAuthStore((s) => s.setToken);
+  const setUser = useAuthStore((s) => s.setUser);
+  const toast = useToastLoading();
 
   const {
     register,
@@ -25,23 +28,18 @@ export default function Login() {
     },
   });
 
-  const onSubmit = async (data: LoginFormValues) => {
-    // Simulando uma chamada de API
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    
-    // Mock user data
-    setToken('mock-jwt-token-12345');
-    setUser({
-      id: '1',
-      name: 'Administrador do Sistema',
-      email: data.email,
-      role: 'ADMIN',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    });
+  const { mutateAsync: loginMutation } = useLogin();
 
-    console.log('Login efetuado:', data);
-    navigate(APP_ROUTES.HOME);
+  const onSubmit = async (data: LoginFormValues) => {
+    toast({ message: 'Entrando...' });
+    const res = await loginMutation(data);
+    
+    if (res.success && res.data?.token && res.data?.user) {
+      toast({ type: 'success', message: 'Bem-vindo!' });
+      setToken(res.data.token);
+      setUser(res.data.user);
+      navigate(APP_ROUTES.HOME);
+    } else toast({ type: res.type, message: res.message });
   };
 
   return (
@@ -108,9 +106,9 @@ export default function Login() {
                 {...register('password')}
               />
               <div className="flex justify-end">
-                <a href="#" className="text-sm font-medium text-primary hover:underline transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-sm">
+                <Link to={APP_ROUTES.FORGOT_PASSWORD} className="text-sm font-medium text-primary hover:underline transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-sm">
                   Esqueceu a senha?
-                </a>
+                </Link>
               </div>
             </div>
 

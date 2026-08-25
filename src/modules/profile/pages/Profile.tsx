@@ -3,10 +3,10 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter }
 import { Button } from '@/shared/components/ui/button';
 import { Input } from '@/shared/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/shared/components/ui/avatar';
-import useUserStore from '@/modules/login/store/useAuthStore';
+import useAuthStore from '@/modules/auth/store/useAuthStore';
 
 export default function Profile() {
-  const user = useUserStore((s) => s.user);
+  const user = useAuthStore((s) => s.user);
 
   if (!user) return null;
 

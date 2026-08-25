@@ -23,13 +23,13 @@ import { User, LogOut } from 'lucide-react';
 import { ThemeToggle } from '../ThemeToggle';
 import { NAVIGATION_ITEMS } from '@/shared/constants/navigation';
 import { APP_ROUTES } from '@/shared/constants/urlRoutes';
-import useUserStore from '@/modules/login/store/useAuthStore';
+import useAuthStore from '@/modules/auth/store/useAuthStore';
 
 export function AppHeader() {
   const location = useLocation();
   const navigate = useNavigate();
-  const user = useUserStore((s) => s.user);
-  const logout = useUserStore((s) => s.logout);
+  const user = useAuthStore((s) => s.user);
+  const logout = useAuthStore((s) => s.logout);
 
   let breadcrumbs: { title: string; url: string }[] = [];
   for (const item of NAVIGATION_ITEMS) {

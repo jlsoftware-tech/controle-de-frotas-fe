@@ -1,8 +1,8 @@
-import type { User } from '@/modules/login/types/login';
+import type { User } from '@/modules/auth/types/user';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-type UserState = {
+type AuthState = {
   user: User | null;
   token: string | null;
   setUser: (user: User | null) => void;
@@ -11,7 +11,7 @@ type UserState = {
   isAuthenticated: () => boolean;
 };
 
-export const useUserStore = create<UserState>()(
+export const useAuthStore = create<AuthState>()(
   persist(
     (set, get) => ({
       user: null,
@@ -22,9 +22,9 @@ export const useUserStore = create<UserState>()(
       isAuthenticated: () => Boolean(get().token),
     }),
     {
-      name: 'user_storage',
+      name: 'auth_storage',
     }
   )
 );
 
-export default useUserStore;
+export default useAuthStore;

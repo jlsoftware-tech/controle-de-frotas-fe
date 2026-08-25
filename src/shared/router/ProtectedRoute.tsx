@@ -1,11 +1,24 @@
 import { Navigate } from 'react-router-dom';
-import type { ReactNode } from 'react';
-import useUserStore from '@/modules/login/store/useAuthStore';
+import { useEffect, type ReactNode } from 'react';
+import useAuthStore from '@/modules/auth/store/useAuthStore';
+import { useValidateToken } from '@/modules/auth/hooks/useValidateToken';
+import Loading from '@/shared/components/Loading';
 
 export function ProtectedRoute({ children }: { children: ReactNode }) {
-  const token = useUserStore((s) => s.token);
+  const token = useAuthStore((s) => s.token);
+  const logout = useAuthStore((s) => s.logout);
+  
+  const { data, isLoading, isError } = useValidateToken();
+
+  useEffect(() => {
+    if (isError || (data && !data.success))
+      logout();
+  }, [data, isError, logout]);
+
   if (!token) return <Navigate to="/login" replace />;
-  return children;
+  if (isLoading) return <Loading />;
+
+  return <>{children}</>;
 }
 
 export function RoleProtectedRoute({
@@ -15,8 +28,8 @@ export function RoleProtectedRoute({
   children: React.ReactNode;
   allowedRoles: string[];
 }) {
-  const user = useUserStore((s) => s.user);
-  const token = useUserStore((s) => s.token);
+  const user = useAuthStore((s) => s.user);
+  const token = useAuthStore((s) => s.token);
 
   if (!token) return <Navigate to="/login" replace />;
   if (!user || !allowedRoles.includes(user.role)) return <Navigate to="/login" replace />;

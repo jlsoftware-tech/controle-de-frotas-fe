@@ -9,6 +9,8 @@ export const APP_ROUTES = {
   SETTINGS: '/configuracoes',
   PROFILE: '/perfil',
   LOGIN: '/login',
+  FORGOT_PASSWORD: '/recuperar-senha',
+  RESET_PASSWORD: '/redefinir-senha',
 };
 
 export type AppRoute = (typeof APP_ROUTES)[keyof typeof APP_ROUTES];
