@@ -6,11 +6,12 @@ import { Button } from '@/shared/components/ui/button';
 import { Input, InputPassword, InputSelect } from '@/shared/components/ui/input';
 import { Mail, Lock, User as UserIcon } from 'lucide-react';
 import useToastLoading from '@/shared/hooks/useToastLoading';
-import { createUserSchema } from '../schemas/createUser.schema';
-import { updateUserSchema } from '../schemas/updateUser.schema';
+import { createUserSchema, type CreateUserFormValues } from '../schemas/createUser.schema';
+import { updateUserSchema, type UpdateUserFormValues } from '../schemas/updateUser.schema';
 import { useUsers } from '../hooks/useUsers';
 import { useEffect } from 'react';
 import type { User } from '../types/user';
+import { roleOptions } from '@/modules/auth/utils/roles';
 
 interface UserFormModalProps {
   open: boolean;
@@ -64,7 +65,9 @@ export function UserFormModal({ open, onOpenChange, onSuccess, userToEdit }: Use
     }
   }, [userToEdit, open, reset]);
 
-  const onSubmit = async (data: any) => {
+  type FormData = CreateUserFormValues | UpdateUserFormValues;
+
+  const onSubmit = async (data: FormData) => {
     toast({ message: isEditing ? 'Atualizando usuário...' : 'Salvando usuário...' });
     
     let res;
@@ -77,11 +80,12 @@ export function UserFormModal({ open, onOpenChange, onSuccess, userToEdit }: Use
       };
       res = await updateMutation.mutateAsync({ id: userToEdit.id, data: payload });
     } else {
+      const createData = data as CreateUserFormValues;
       const payload = {
-        name: data.name,
-        email: data.email,
-        password: data.password,
-        role: data.role,
+        name: createData.name,
+        email: createData.email,
+        password: createData.password,
+        role: createData.role,
       };
       res = await createMutation.mutateAsync(payload);
     }
@@ -152,10 +156,7 @@ export function UserFormModal({ open, onOpenChange, onSuccess, userToEdit }: Use
               label="Nível de Acesso"
               placeholder="Selecione..."
               contentPortalContainer={portalContainer}
-              options={[
-                { label: 'Administrador', value: 'ADMIN' },
-                { label: 'Usuário Padrão', value: 'USER' },
-              ]}
+              options={roleOptions}
               message={errors.role?.message}
             />
           </div>

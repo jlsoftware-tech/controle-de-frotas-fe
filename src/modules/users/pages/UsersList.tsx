@@ -29,6 +29,8 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from '@/shared/components/ui/pagination';
+import { formatDateTime } from '@/shared/utils/formatar';
+import { getRoleLabel, roleOptions } from '@/modules/auth/utils/roles';
 
 export default function UsersList() {
   const [page, setPage] = useState(1);
@@ -110,8 +112,7 @@ export default function UsersList() {
               label="Nível de Acesso"
               options={[
                 { label: 'Todos os Níveis', value: 'ALL' },
-                { label: 'Administrador', value: 'ADMIN' },
-                { label: 'Usuário Padrão', value: 'USER' },
+                ...roleOptions
               ]}
             />
           </div>
@@ -155,9 +156,9 @@ export default function UsersList() {
                   <TableRow key={user.id}>
                     <TableCell className="font-medium">{user.name}</TableCell>
                     <TableCell>{user.email}</TableCell>
-                    <TableCell>{user.role === 'ADMIN' ? 'Administrador' : user.role}</TableCell>
+                    <TableCell>{getRoleLabel(user.role)}</TableCell>
                     <TableCell>
-                      {new Date(user.createdAt).toLocaleDateString('pt-BR')}
+                      {formatDateTime(user.createdAt)}
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-2">
