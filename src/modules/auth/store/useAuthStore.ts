@@ -1,4 +1,4 @@
-import type { User } from '@/modules/auth/types/user';
+import type { User } from '@/modules/users/types/user';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 

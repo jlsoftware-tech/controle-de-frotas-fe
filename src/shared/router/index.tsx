@@ -1,7 +1,7 @@
 import Loading from '@/shared/components/Loading';
 import { APP_ROUTES } from '@/shared/constants/urlRoutes';
 import { AppLayout } from '@/shared/layout/AppLayout';
-import { ProtectedRoute, RoleProtectedRoute } from "@/shared/router/ProtectedRoute";
+import { ProtectedRoute } from "@/shared/router/ProtectedRoute";
 import React, { lazy, Suspense } from 'react';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 
@@ -10,6 +10,7 @@ const Login = lazy(() => import('@/modules/auth/pages/Login'));
 const ForgotPassword = lazy(() => import('@/modules/auth/pages/ForgotPassword'));
 const ResetPassword = lazy(() => import('@/modules/auth/pages/ResetPassword'));
 const Profile = lazy(() => import('@/modules/profile/pages/Profile'));
+const UsersList = lazy(() => import('@/modules/users/pages/UsersList'));
 
 function Router(): React.JSX.Element {
   const router = createBrowserRouter([
@@ -28,9 +29,9 @@ function Router(): React.JSX.Element {
     {
       path: APP_ROUTES.HOME,
       element: (
-        <ProtectedRoute>
+        // <ProtectedRoute>
           <AppLayout />
-        </ProtectedRoute>
+        // </ProtectedRoute>
       ),
       children: [
         {
@@ -44,9 +45,17 @@ function Router(): React.JSX.Element {
         {
           path: APP_ROUTES.SETTINGS,
           element: (
-            <RoleProtectedRoute allowedRoles={['ADMIN']}>
+            <ProtectedRoute allowedRoles={['ADMIN']}>
               <div className="p-8">Configurações (Acesso restrito: ADMIN)</div>
-            </RoleProtectedRoute>
+            </ProtectedRoute>
+          ),
+        },
+        {
+          path: APP_ROUTES.USERS,
+          element: (
+            // <ProtectedRoute allowedRoles={['ADMIN']}>
+              <UsersList />
+            // </ProtectedRoute>  
           ),
         },
       ],

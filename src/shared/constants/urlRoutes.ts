@@ -11,6 +11,7 @@ export const APP_ROUTES = {
   LOGIN: '/login',
   FORGOT_PASSWORD: '/recuperar-senha',
   RESET_PASSWORD: '/redefinir-senha',
+  USERS: '/usuarios',
 };
 
 export type AppRoute = (typeof APP_ROUTES)[keyof typeof APP_ROUTES];

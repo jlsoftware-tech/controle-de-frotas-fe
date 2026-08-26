@@ -1,4 +1,4 @@
-import { Truck, Users, LayoutDashboard, Settings, Car, Wrench, Contact, CalendarClock } from 'lucide-react';
+import { Truck, Users, LayoutDashboard, Settings, Car, Wrench, Contact, CalendarClock, UserCog } from 'lucide-react';
 import { APP_ROUTES } from '@/shared/constants/urlRoutes';
 import type { NavigationItem } from '../types/navigationMenuItem';
 
@@ -48,6 +48,12 @@ export const NAVIGATION_ITEMS: NavigationItem[] = [
     title: 'Configurações',
     url: APP_ROUTES.SETTINGS,
     icon: Settings,
+    allowedRoles: ['ADMIN'],
+  },
+  {
+    title: 'Usuários',
+    url: APP_ROUTES.USERS,
+    icon: UserCog,
     allowedRoles: ['ADMIN'],
   },
 ];

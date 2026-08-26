@@ -49,8 +49,9 @@ export function AppHeader() {
     }
   }
 
-  if (breadcrumbs.length === 0)
-    breadcrumbs = [{ title: 'Dashboard', url: '/' }];
+  if (breadcrumbs.length === 0 || location.pathname === APP_ROUTES.HOME)
+    breadcrumbs = [{ title: 'Dashboard', url: APP_ROUTES.HOME }];
+  else breadcrumbs = [{ title: 'Dashboard', url: APP_ROUTES.HOME }, ...breadcrumbs];
 
   return (
     <header className="sticky top-0 z-50 flex h-16 shrink-0 items-center gap-4 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm px-6 transition-all">

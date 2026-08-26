@@ -1,4 +1,4 @@
-import type { User } from './user';
+import type { User } from "@/modules/users/types/user";
 
 export interface LoginResponse {
   user: User;
