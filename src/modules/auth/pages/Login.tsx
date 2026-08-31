@@ -35,13 +35,12 @@ export default function Login() {
   const onSubmit = async (data: LoginFormValues) => {
     toast({ message: 'Entrando...' });
     const res = await loginMutation(data);
-    
-    if (res.success && res.data?.token && res.data?.user) {
-      toast({ type: 'success', message: 'Bem-vindo!' });
-      setToken(res.data.token);
-      setUser(res.data.user);
+    if (res.success && res.token && res.data) {
+      setToken(res.token);
+      setUser(res.data);
       navigate(APP_ROUTES.HOME);
-    } else toast({ type: res.type, message: res.message });
+    } 
+    toast({ type: res.type, message: res.message });
   };
 
   return (

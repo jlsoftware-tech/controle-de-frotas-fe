@@ -1,5 +1,5 @@
 import { getRequest, postRequest, putRequest, deleteRequest } from '@/shared/utils/axiosRequest';
-import type { CreateUserPayload, CreateUserResponse, UpdateUserPayload, GetUsersParams } from '../types/user';
+import type { CreateUserPayload, CreateUserResponse, UpdateUserPayload, GetUsersParams, UsersResponse } from '../types/user';
 
 export function getUsers(params: GetUsersParams) {
   const query = new URLSearchParams({
@@ -9,7 +9,7 @@ export function getUsers(params: GetUsersParams) {
   if (params.search) query.append('search', params.search);
   if (params.role && params.role !== 'ALL') query.append('role', params.role);
 
-  return getRequest(`/users?${query.toString()}`);
+  return getRequest<UsersResponse>(`/users?${query.toString()}`);
 }
 
 export function createUser(data: CreateUserPayload) {

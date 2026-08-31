@@ -1,9 +1,6 @@
 import type { User } from "@/modules/users/types/user";
 
-export interface LoginResponse {
-  user: User;
-  token: string;
-}
+export type LoginResponse = User
 
 export interface LoginPayload {
   email: string;

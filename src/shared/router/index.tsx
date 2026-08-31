@@ -29,9 +29,9 @@ function Router(): React.JSX.Element {
     {
       path: APP_ROUTES.HOME,
       element: (
-        // <ProtectedRoute>
+        <ProtectedRoute>
           <AppLayout />
-        // </ProtectedRoute>
+        </ProtectedRoute>
       ),
       children: [
         {
@@ -53,9 +53,9 @@ function Router(): React.JSX.Element {
         {
           path: APP_ROUTES.USERS,
           element: (
-            // <ProtectedRoute allowedRoles={['ADMIN']}>
+            <ProtectedRoute allowedRoles={['ADMIN']}>
               <UsersList />
-            // </ProtectedRoute>  
+            </ProtectedRoute>  
           ),
         },
       ],

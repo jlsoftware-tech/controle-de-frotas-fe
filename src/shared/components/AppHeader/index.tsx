@@ -24,12 +24,24 @@ import { ThemeToggle } from '../ThemeToggle';
 import { NAVIGATION_ITEMS } from '@/shared/constants/navigation';
 import { APP_ROUTES } from '@/shared/constants/urlRoutes';
 import useAuthStore from '@/modules/auth/store/useAuthStore';
+import { useLogout } from '@/modules/auth/hooks/useLogout';
+import useToastLoading from '@/shared/hooks/useToastLoading';
 
 export function AppHeader() {
   const location = useLocation();
   const navigate = useNavigate();
+  const clearAuth = useAuthStore((s) => s.logout);
   const user = useAuthStore((s) => s.user);
-  const logout = useAuthStore((s) => s.logout);
+  const { mutateAsync: logoutMutation } = useLogout();
+  const toast = useToastLoading();
+
+  const handleLogout = async () => {
+    toast({ message: 'Saindo...' });
+    const res = await logoutMutation();
+    toast({ type: res.type, message: res.message });
+    clearAuth();
+    navigate(APP_ROUTES.LOGIN);
+  };
 
   let breadcrumbs: { title: string; url: string }[] = [];
   for (const item of NAVIGATION_ITEMS) {
@@ -104,10 +116,7 @@ export function AppHeader() {
             <DropdownMenuItem
               variant="destructive"
               className="cursor-pointer"
-              onClick={() => {
-                logout();
-                navigate(APP_ROUTES.LOGIN);
-              }}
+              onClick={handleLogout}
             >
               <LogOut className="mr-2 h-4 w-4" />
               <span>Sair</span>

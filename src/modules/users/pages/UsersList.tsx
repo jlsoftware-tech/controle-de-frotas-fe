@@ -22,13 +22,7 @@ import {
 import useToastLoading from '@/shared/hooks/useToastLoading';
 import { useQueryClient } from '@tanstack/react-query';
 import type { User } from '../types/user';
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationNext,
-  PaginationPrevious,
-} from '@/shared/components/ui/pagination';
+import { Pagination, PaginationContent, PaginationItem, PaginationNext, PaginationPrevious } from '@/shared/components/ui/pagination';
 import { formatDateTime } from '@/shared/utils/formatar';
 import { getRoleLabel, roleOptions } from '@/modules/auth/utils/roles';
 
@@ -69,6 +63,7 @@ export default function UsersList() {
     search: debouncedSearch,
     role
   });
+  
   const isDeleting = deleteMutation.isPending;
   const queryClient = useQueryClient();
   const toast = useToastLoading();
@@ -147,7 +142,7 @@ export default function UsersList() {
             <TableBody>
               {users.length === 0 && !isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={4} className="h-24 text-center">
+                  <TableCell colSpan={5} className="h-24 text-center">
                     Nenhum usuário encontrado.
                   </TableCell>
                 </TableRow>
@@ -265,15 +260,12 @@ export default function UsersList() {
               onClick={async (e) => {
                 e.preventDefault();
                 if (!userToDelete) return;
-                
                 toast({ message: 'Excluindo usuário...' });
                 const res = await deleteMutation.mutateAsync(userToDelete.id);
-                
                 if (res.success) {
                   setUserToDelete(null);
                   queryClient.invalidateQueries({ queryKey: ['users'] });
                 }
-                
                 toast({ type: res.type, message: res.message });
               }}
             >

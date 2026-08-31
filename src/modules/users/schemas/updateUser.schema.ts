@@ -7,9 +7,7 @@ export const updateUserSchema = z.object({
   confirmPassword: z.string().optional().or(z.literal('')),
   role: z.enum(['ADMIN', 'USER'], { message: 'Selecione um nível de acesso' }).optional(),
 }).refine((data) => {
-  if (data.password && data.password !== '') {
-    return data.password === data.confirmPassword;
-  }
+  if (data.password && data.password !== '') return data.password === data.confirmPassword;
   return true;
 }, {
   message: 'As senhas não coincidem',
