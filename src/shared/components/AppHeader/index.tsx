@@ -21,7 +21,8 @@ import {
 } from '@/shared/components/ui/dropdown-menu';
 import { User, LogOut } from 'lucide-react';
 import { ThemeToggle } from '../ThemeToggle';
-import { NAVIGATION_ITEMS } from '@/shared/constants/navigation';
+import { useQuery } from '@tanstack/react-query';
+import { getNavigation } from '@/modules/navigation/api/getNavigation';
 import { APP_ROUTES } from '@/shared/constants/urlRoutes';
 import useAuthStore from '@/modules/auth/store/useAuthStore';
 import { useLogout } from '@/modules/auth/hooks/useLogout';
@@ -43,8 +44,14 @@ export function AppHeader() {
     navigate(APP_ROUTES.LOGIN);
   };
 
+  const { data: navigationItems = [] } = useQuery({
+    queryKey: ['navigation'],
+    queryFn: getNavigation,
+    enabled: !!user,
+  });
+
   let breadcrumbs: { title: string; url: string }[] = [];
-  for (const item of NAVIGATION_ITEMS) {
+  for (const item of navigationItems) {
     if (item.url === location.pathname) {
       breadcrumbs = [{ title: item.title, url: item.url }];
       break;
