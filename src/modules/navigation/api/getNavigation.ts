@@ -20,6 +20,6 @@ type GetNavigationResponse = {
 
 export const getNavigation = async (): Promise<ApiNavigationItem[]> => {
   const axios = getAxios();
-  const response = await axios.get<GetNavigationResponse>('/profiles');
+  const response = await axios.get<GetNavigationResponse>('/profile');
   return response.data.data;
 };

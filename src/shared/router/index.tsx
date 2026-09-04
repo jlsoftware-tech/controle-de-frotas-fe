@@ -29,9 +29,9 @@ function Router(): React.JSX.Element {
     {
       path: APP_ROUTES.HOME,
       element: (
-        // <ProtectedRoute>
+        <ProtectedRoute>
           <AppLayout />
-        // </ProtectedRoute>
+        </ProtectedRoute>
       ),
       children: [
         {
