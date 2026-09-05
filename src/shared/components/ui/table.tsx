@@ -1,6 +1,6 @@
+import { cn } from '@/shared/lib/utils';
 import * as React from 'react';
 import Loading from '../Loading';
-import { cn } from '@/shared/lib/utils';
 
 function Table({
   className,
@@ -39,7 +39,10 @@ function TableBody({ className, ...props }: React.ComponentProps<'tbody'>) {
   return (
     <tbody
       data-slot="table-body"
-      className={cn('[&_tr:last-child]:border-0 [&_tr:nth-child(even)]:bg-muted/50', className)}
+      className={cn(
+        '[&_tr:last-child]:border-0 [&_tr:nth-child(even)]:bg-muted/50',
+        className
+      )}
       {...props}
     />
   );
@@ -112,11 +115,11 @@ function TableCaption({
 
 export {
   Table,
-  TableHeader,
   TableBody,
+  TableCaption,
+  TableCell,
   TableFooter,
   TableHead,
+  TableHeader,
   TableRow,
-  TableCell,
-  TableCaption,
 };

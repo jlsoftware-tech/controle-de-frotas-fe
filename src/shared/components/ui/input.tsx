@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { cn } from '@/shared/lib/utils';
 import {
   AlertCircle,
@@ -7,14 +6,14 @@ import {
   Eye,
   EyeOff,
 } from 'lucide-react';
-import { Field, FieldError, FieldLabel } from './field';
-import { Button } from './button';
+import * as React from 'react';
 import {
   Controller,
   type Control,
   type FieldValues,
   type Path,
 } from 'react-hook-form';
+import { Button } from './button';
 import {
   Combobox,
   ComboboxContent,
@@ -23,6 +22,7 @@ import {
   ComboboxItem,
   ComboboxList,
 } from './combobox';
+import { Field, FieldError, FieldLabel } from './field';
 
 export type InputSize = 'sm' | 'md' | 'lg' | 'xl';
 
@@ -312,7 +312,9 @@ function InputSelect<T extends FieldValues>({
             filter={props.serverSideSearch ? null : undefined}
             value={
               selectedOption ??
-              props.options.find((r) => String(r.value) === String(field.value)) ??
+              props.options.find(
+                (r) => String(r.value) === String(field.value)
+              ) ??
               null
             }
             onValueChange={(item: any) => {
@@ -478,10 +480,10 @@ function InputDecimal<T extends FieldValues>({
 
 export {
   Input,
+  InputCEP,
+  InputCPF,
+  InputDecimal,
   InputPassword,
   InputPhone,
-  InputCPF,
-  InputCEP,
-  InputDecimal,
   InputSelect,
 };

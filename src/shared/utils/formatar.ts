@@ -1,10 +1,7 @@
-import moment from 'moment';
 import Decimal from 'decimal.js';
+import moment from 'moment';
 
-export const converterDecimal = (
-  valor: string | number,
-  decimalPlaces: number = 2
-) => {
+export const converterDecimal = (valor: string | number, decimalPlaces: number = 2) => {
   return new Decimal(valor)
     .toDecimalPlaces(decimalPlaces, Decimal.ROUND_UP)
     .toString();
@@ -34,11 +31,7 @@ export const removeMask = (item: string): string => {
   return item.replace(/\D/g, '');
 };
 
-export const formatDateTime = (
-  data: Date | string,
-  tipo: '' | 'data' | 'hora' = '',
-  segundos: boolean = false
-): string => {
+export const formatDateTime = (data: Date | string, tipo: '' | 'data' | 'hora' = '', segundos: boolean = false): string => {
   if (tipo == 'data') return moment(data).format('DD/MM/YYYY');
   if (tipo == 'hora')
     return segundos
@@ -57,10 +50,7 @@ export const formatDateName = (date: string) => {
   });
 };
 
-export const formatDecimal = (
-  valor: string | number,
-  decimalPlaces: number = 2
-): string => {
+export const formatDecimal = (valor: string | number, decimalPlaces: number = 2): string => {
   if (valor === 0) return '0';
   return new Intl.NumberFormat('pt-BR', {
     minimumFractionDigits: decimalPlaces,

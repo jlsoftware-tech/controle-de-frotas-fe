@@ -1,32 +1,19 @@
-import React from 'react';
-import { useLocation, Link, useNavigate } from 'react-router-dom';
-import { SidebarTrigger } from '@/shared/components/ui/sidebar';
-import { Separator } from '@/shared/components/ui/separator';
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from '@/shared/components/ui/breadcrumb';
 import { Avatar, AvatarFallback, AvatarImage } from '@/shared/components/ui/avatar';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/shared/components/ui/dropdown-menu';
-import { User, LogOut } from 'lucide-react';
-import { ThemeToggle } from '../ThemeToggle';
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/shared/components/ui/breadcrumb';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/shared/components/ui/dropdown-menu';
+import { Separator } from '@/shared/components/ui/separator';
+import { SidebarTrigger } from '@/shared/components/ui/sidebar';
 import { useQuery } from '@tanstack/react-query';
-import { getNavigation } from '@/modules/navigation/api/getNavigation';
-import { APP_ROUTES } from '@/shared/constants/urlRoutes';
-import useAuthStore from '@/modules/auth/store/useAuthStore';
+import { LogOut, User } from 'lucide-react';
+import React from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { ThemeToggle } from '../ThemeToggle';
 import { useLogout } from '@/modules/auth/hooks/useLogout';
+import useAuthStore from '@/modules/auth/store/useAuthStore';
+import { APP_ROUTES } from '@/shared/constants/urlRoutes';
 import useToastLoading from '@/shared/hooks/useToastLoading';
+import { getNavigation } from '@/shared/services/navigation';
+import type { NavigationResponse } from '@/shared/types/navigationMenuItem';
 
 export function AppHeader() {
   const location = useLocation();
@@ -44,24 +31,26 @@ export function AppHeader() {
     navigate(APP_ROUTES.LOGIN);
   };
 
-  const { data: navigationItems = [] } = useQuery({
+  const { data: response } = useQuery({
     queryKey: ['navigation'],
     queryFn: getNavigation,
     enabled: !!user,
   });
 
+  const navigationItems: NavigationResponse = response?.data ?? [];
+
   let breadcrumbs: { title: string; url: string }[] = [];
   for (const item of navigationItems) {
-    if (item.url === location.pathname) {
-      breadcrumbs = [{ title: item.title, url: item.url }];
+    if (item.nameMenu === location.pathname) {
+      breadcrumbs = [{ title: item.nameMenu, url: item.link }];
       break;
     }
-    if (item.items) {
-      const subItem = item.items.find((sub) => sub.url === location.pathname);
+    if (item.subMenu) {
+      const subItem = item.subMenu.find((sub) => sub.link === location.pathname);
       if (subItem) {
         breadcrumbs = [
-          { title: item.title, url: item.url },
-          { title: subItem.title, url: subItem.url },
+          { title: item.nameMenu, url: item.link },
+          { title: subItem.nameSubMenu, url: subItem.link },
         ];
         break;
       }
@@ -70,7 +59,11 @@ export function AppHeader() {
 
   if (breadcrumbs.length === 0 || location.pathname === APP_ROUTES.HOME)
     breadcrumbs = [{ title: 'Dashboard', url: APP_ROUTES.HOME }];
-  else breadcrumbs = [{ title: 'Dashboard', url: APP_ROUTES.HOME }, ...breadcrumbs];
+  else
+    breadcrumbs = [
+      { title: 'Dashboard', url: APP_ROUTES.HOME },
+      ...breadcrumbs,
+    ];
 
   return (
     <header className="sticky top-0 z-50 flex h-16 shrink-0 items-center gap-4 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm px-6 transition-all">
@@ -80,7 +73,11 @@ export function AppHeader() {
         <BreadcrumbList>
           {breadcrumbs.map((bc, index) => (
             <React.Fragment key={bc.title + index}>
-              <BreadcrumbItem className={index === 0 && breadcrumbs.length > 1 ? "hidden md:block" : ""}>
+              <BreadcrumbItem
+                className={
+                  index === 0 && breadcrumbs.length > 1 ? 'hidden md:block' : ''
+                }
+              >
                 {index === breadcrumbs.length - 1 ? (
                   <BreadcrumbPage>{bc.title}</BreadcrumbPage>
                 ) : (
@@ -102,19 +99,28 @@ export function AppHeader() {
           <DropdownMenuTrigger asChild>
             <Avatar className="h-8 w-8 cursor-pointer ring-offset-background transition-all hover:ring-2 hover:ring-ring hover:ring-offset-2">
               <AvatarImage src="" alt={user?.name} />
-              <AvatarFallback>{user?.name?.substring(0, 2).toUpperCase() || 'AD'}</AvatarFallback>
+              <AvatarFallback>
+                {user?.name?.substring(0, 2).toUpperCase() || 'AD'}
+              </AvatarFallback>
             </Avatar>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-60">
             <DropdownMenuLabel className="font-normal">
               <div className="flex flex-col space-y-1">
-                <p className="text-sm font-medium leading-none">{user?.name || 'Administrador'}</p>
-                <p className="text-xs leading-none text-muted-foreground">{user?.email || 'admin@jlsoftware.com'}</p>
+                <p className="text-sm font-medium leading-none">
+                  {user?.name || 'Administrador'}
+                </p>
+                <p className="text-xs leading-none text-muted-foreground">
+                  {user?.email || 'admin@jlsoftware.com'}
+                </p>
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem className="cursor-pointer" asChild>
-              <Link to={APP_ROUTES.PROFILE} className="flex items-center w-full">
+              <Link
+                to={APP_ROUTES.PROFILE}
+                className="flex items-center w-full"
+              >
                 <User className="mr-2 h-4 w-4" />
                 <span>Perfil</span>
               </Link>

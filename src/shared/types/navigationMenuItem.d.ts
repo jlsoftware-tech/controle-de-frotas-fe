@@ -1,16 +1,14 @@
-import type { ElementType } from "react";
-
 export interface NavigationSubItem {
-  title: string;
-  url: string;
-  icon: ElementType;
-  allowedRoles?: string[];
+  nameSubMenu: string;
+  link: string;
+  icon: string;
 }
 
 export interface NavigationItem {
-  title: string;
-  url: string;
-  icon: ElementType;
-  items?: NavigationSubItem[];
-  allowedRoles?: string[];
+  nameMenu: string;
+  link: string;
+  icon: string;
+  subMenu?: NavigationSubItem[];
 }
+
+export type NavigationResponse = NavigationItem[];

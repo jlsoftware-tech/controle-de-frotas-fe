@@ -1,8 +1,8 @@
-import { Outlet } from 'react-router-dom';
 import { SidebarProvider } from '@/shared/components/ui/sidebar';
 import { TooltipProvider } from '@/shared/components/ui/tooltip';
-import { AppSidebar } from '../components/AppSidebar';
+import { Outlet } from 'react-router-dom';
 import { AppHeader } from '../components/AppHeader';
+import { AppSidebar } from '../components/AppSidebar';
 
 export function AppLayout() {
   return (

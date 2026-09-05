@@ -43,10 +43,12 @@ Antes de iniciar, certifique-se de ter as seguintes ferramentas instaladas:
 
 ## 🚀 Como Executar o Projeto
 
-Você pode rodar este projeto de duas maneiras: utilizando seu ambiente local ou através do Docker. 
+Você pode rodar este projeto de duas maneiras: utilizando seu ambiente local ou através do Docker.
 
 ### 1️⃣ Clone o repositório
+
 Independente da forma escolhida, o primeiro passo é clonar ou acessar o repositório e navegar até a pasta do projeto:
+
 ```bash
 cd controle-de-frotas-fe
 ```
@@ -54,11 +56,13 @@ cd controle-de-frotas-fe
 ### 💻 Opção A: Execução Local (com pnpm)
 
 1. **Instale as dependências:**
+
    ```bash
    pnpm install
    ```
 
 2. **Inicie o servidor de desenvolvimento:**
+
    ```bash
    pnpm dev
    ```
@@ -71,10 +75,12 @@ cd controle-de-frotas-fe
 O projeto já conta com toda a configuração de containers pronta (`Dockerfile` e `docker-compose.yml`), rodando por trás de um servidor Nginx otimizado.
 
 1. **Inicie os containers:**
+
    ```bash
    docker-compose up -d
    ```
-   *(A flag `-d` executa os containers em segundo plano - detached mode).*
+
+   _(A flag `-d` executa os containers em segundo plano - detached mode)._
 
 2. **Acesse a aplicação:**
    Abra seu navegador e acesse [http://localhost:8080](http://localhost:8080) (ou a porta correspondente definida no docker-compose).

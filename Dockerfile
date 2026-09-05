@@ -14,7 +14,7 @@ RUN pnpm install --frozen-lockfile --ignore-scripts
 # ==========================================
 FROM base AS development
 COPY . .
-EXPOSE 5173
+EXPOSE 5174
 CMD ["pnpm", "dev", "--host"]
 
 # ==========================================

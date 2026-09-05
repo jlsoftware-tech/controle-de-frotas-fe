@@ -4,12 +4,13 @@ import type { ApiResponse } from '../types/responseApi';
 
 function handleError(err: unknown): ApiResponse<never> {
   if (axios.isAxiosError(err)) {
-    const axiosError = err as AxiosError<{ message?: string; error?: unknown; }>;
+    const axiosError = err as AxiosError<{ message?: string; error?: unknown }>;
     return {
       success: false,
       message: axiosError.response?.data?.message ?? 'Erro na requisição',
       error: axiosError.response?.data?.error ?? err,
       type: 'error',
+      status_code: axiosError.response?.status,
     };
   }
   return {
@@ -17,14 +18,24 @@ function handleError(err: unknown): ApiResponse<never> {
     message: 'Erro inesperado',
     error: err,
     type: 'error',
+    status_code: undefined,
   };
 }
 
-export async function postRequest<T>(url: string, body: unknown): Promise<ApiResponse<T>> {
+export async function postRequest<T>(
+  url: string,
+  body: unknown
+): Promise<ApiResponse<T>> {
   const axios = getAxios();
   try {
     const { data } = await axios.post<ApiResponse<T>>(url, body);
-    return { ...data, success: true, message: data.message, type: 'success' };
+    return {
+      ...data,
+      success: true,
+      message: data.message,
+      type: 'success',
+      status_code: data.status_code,
+    };
   } catch (err: unknown) {
     return handleError(err);
   }
@@ -40,7 +51,10 @@ export async function getRequest<T>(url: string): Promise<ApiResponse<T>> {
   }
 }
 
-export async function deleteRequest<T>( url: string, body?: unknown): Promise<ApiResponse<T>> {
+export async function deleteRequest<T>(
+  url: string,
+  body?: unknown
+): Promise<ApiResponse<T>> {
   const axios = getAxios();
   try {
     const { data } = await axios.delete<ApiResponse<T>>(url, { data: body });
@@ -50,7 +64,10 @@ export async function deleteRequest<T>( url: string, body?: unknown): Promise<Ap
   }
 }
 
-export async function putRequest<T>( url: string, body: unknown ): Promise<ApiResponse<T>> {
+export async function putRequest<T>(
+  url: string,
+  body: unknown
+): Promise<ApiResponse<T>> {
   const axios = getAxios();
   try {
     const { data } = await axios.put<ApiResponse<T>>(url, body);
@@ -60,7 +77,10 @@ export async function putRequest<T>( url: string, body: unknown ): Promise<ApiRe
   }
 }
 
-export async function patchRequest<T = unknown>( url: string, body?: unknown ): Promise<ApiResponse<T>> {
+export async function patchRequest<T = unknown>(
+  url: string,
+  body?: unknown
+): Promise<ApiResponse<T>> {
   const axios = getAxios();
   try {
     const { data } = await axios.patch<ApiResponse<T>>(url, body);

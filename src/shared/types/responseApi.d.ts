@@ -1,4 +1,4 @@
-import type { TypeOptions } from "react-toastify";
+import type { TypeOptions } from 'react-toastify';
 
 export type ApiResponse<T> = {
   token?: string;
@@ -7,4 +7,5 @@ export type ApiResponse<T> = {
   success: boolean;
   type?: TypeOptions | 'loading' | 'dismiss';
   error?: unknown;
+  status_code?: number;
 };

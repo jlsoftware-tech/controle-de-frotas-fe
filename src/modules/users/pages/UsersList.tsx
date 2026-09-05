@@ -1,13 +1,5 @@
-import { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { getRoleLabel, roleOptions } from '@/modules/auth/utils/roles';
 import { useUsers } from '@/modules/users/hooks/useUsers';
-import useDebounce from '@/shared/hooks/useDebounce';
-import { UserFormModal } from '../components/UserFormModal';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/shared/components/ui/table';
-import { Button } from '@/shared/components/ui/button';
-import { UserCog, Edit2, Trash2, AlertTriangle, Search } from 'lucide-react';
-import { Input, InputSelect } from '@/shared/components/ui/input';
-import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/components/ui/card';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -16,27 +8,55 @@ import {
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
+  AlertDialogMedia,
   AlertDialogTitle,
-  AlertDialogMedia
 } from '@/shared/components/ui/alert-dialog';
+import { Button } from '@/shared/components/ui/button';
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/shared/components/ui/card';
+import { Input, InputSelect } from '@/shared/components/ui/input';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/shared/components/ui/pagination';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/shared/components/ui/table';
+import useDebounce from '@/shared/hooks/useDebounce';
 import useToastLoading from '@/shared/hooks/useToastLoading';
-import { useQueryClient } from '@tanstack/react-query';
-import type { User } from '../types/user';
-import { Pagination, PaginationContent, PaginationItem, PaginationNext, PaginationPrevious } from '@/shared/components/ui/pagination';
 import { formatDateTime } from '@/shared/utils/formatar';
-import { getRoleLabel, roleOptions } from '@/modules/auth/utils/roles';
+import { useQueryClient } from '@tanstack/react-query';
+import { AlertTriangle, Edit2, Search, Trash2, UserCog } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { UserFormModal } from '../components/UserFormModal';
+import type { User } from '../types/user';
 
 export default function UsersList() {
   const [page, setPage] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
-  
+
   const { register, control, watch, setValue } = useForm({
     defaultValues: {
       search: '',
-      role: 'ALL'
-    }
+      role: 'ALL',
+    },
   });
 
   const searchValue = watch('search');
@@ -57,13 +77,18 @@ export default function UsersList() {
     setPage(1);
   }, [role]);
 
-  const { data: usersResponse, isLoading, isPlaceholderData, deleteMutation } = useUsers({ 
-    page, 
+  const {
+    data: usersResponse,
+    isLoading,
+    isPlaceholderData,
+    deleteMutation,
+  } = useUsers({
+    page,
     limit,
     search: debouncedSearch,
-    role
+    role,
   });
-  
+
   const isDeleting = deleteMutation.isPending;
   const queryClient = useQueryClient();
   const toast = useToastLoading();
@@ -72,7 +97,8 @@ export default function UsersList() {
   const users = usersResponse?.data || [];
 
   const handlePreviousPage = () => setPage((old) => Math.max(old - 1, 1));
-  const handleNextPage = () => !isPlaceholderData && page < totalPages && setPage((old) => old + 1);
+  const handleNextPage = () =>
+    !isPlaceholderData && page < totalPages && setPage((old) => old + 1);
 
   return (
     <div className="flex flex-col gap-4">
@@ -100,14 +126,14 @@ export default function UsersList() {
               iconPreffix={<Search className="h-4 w-4" />}
               {...register('search')}
             />
-            
+
             <InputSelect
               name="role"
               control={control}
               label="Nível de Acesso"
               options={[
                 { label: 'Todos os Níveis', value: 'ALL' },
-                ...roleOptions
+                ...roleOptions,
               ]}
             />
           </div>
@@ -119,10 +145,13 @@ export default function UsersList() {
           <CardTitle>Lista de Usuários</CardTitle>
           <CardDescription>Gerencie os usuários do sistema.</CardDescription>
           <CardAction>
-            <Button onClick={() => {
-              setEditingUser(null);
-              setIsModalOpen(true);
-            }} className="px-3 sm:px-4">
+            <Button
+              onClick={() => {
+                setEditingUser(null);
+                setIsModalOpen(true);
+              }}
+              className="px-3 sm:px-4"
+            >
               <UserCog className="h-4 w-4 sm:mr-2" />
               <span className="hidden sm:inline">Novo Usuário</span>
             </Button>
@@ -152,9 +181,7 @@ export default function UsersList() {
                     <TableCell className="font-medium">{user.name}</TableCell>
                     <TableCell>{user.email}</TableCell>
                     <TableCell>{getRoleLabel(user.role)}</TableCell>
-                    <TableCell>
-                      {formatDateTime(user.createdAt)}
-                    </TableCell>
+                    <TableCell>{formatDateTime(user.createdAt)}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-2">
                         <Button
@@ -188,7 +215,8 @@ export default function UsersList() {
               {usersResponse ? (
                 <span>
                   Mostrando {(page - 1) * limit + 1} a{' '}
-                  {Math.min(page * limit, usersResponse.total)} de {usersResponse.total} usuários
+                  {Math.min(page * limit, usersResponse.total)} de{' '}
+                  {usersResponse.total} usuários
                 </span>
               ) : (
                 <span>Carregando informações...</span>
@@ -203,7 +231,11 @@ export default function UsersList() {
                       e.preventDefault();
                       if (page > 1) handlePreviousPage();
                     }}
-                    className={page === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                    className={
+                      page === 1
+                        ? 'pointer-events-none opacity-50'
+                        : 'cursor-pointer'
+                    }
                     text="Anterior"
                   />
                 </PaginationItem>
@@ -217,9 +249,14 @@ export default function UsersList() {
                     href="#"
                     onClick={(e) => {
                       e.preventDefault();
-                      if (!isPlaceholderData && page < totalPages) handleNextPage();
+                      if (!isPlaceholderData && page < totalPages)
+                        handleNextPage();
                     }}
-                    className={isPlaceholderData || page >= totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                    className={
+                      isPlaceholderData || page >= totalPages
+                        ? 'pointer-events-none opacity-50'
+                        : 'cursor-pointer'
+                    }
                     text="Próximo"
                   />
                 </PaginationItem>
@@ -228,20 +265,23 @@ export default function UsersList() {
           </div>
         </CardContent>
       </Card>
-      
-      <UserFormModal 
-        open={isModalOpen} 
+
+      <UserFormModal
+        open={isModalOpen}
         onOpenChange={(val) => {
           setIsModalOpen(val);
           if (!val) setEditingUser(null);
-        }} 
+        }}
         userToEdit={editingUser}
         onSuccess={() => {
           queryClient.invalidateQueries({ queryKey: ['users'] });
         }}
       />
 
-      <AlertDialog open={!!userToDelete} onOpenChange={(val) => !val && setUserToDelete(null)}>
+      <AlertDialog
+        open={!!userToDelete}
+        onOpenChange={(val) => !val && setUserToDelete(null)}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogMedia className="bg-destructive/10 text-destructive">
@@ -249,12 +289,16 @@ export default function UsersList() {
             </AlertDialogMedia>
             <AlertDialogTitle>Excluir usuário?</AlertDialogTitle>
             <AlertDialogDescription>
-              Tem certeza que deseja excluir o usuário <strong>{userToDelete?.name}</strong>? Essa ação não poderá ser desfeita.
+              Tem certeza que deseja excluir o usuário{' '}
+              <strong>{userToDelete?.name}</strong>? Essa ação não poderá ser
+              desfeita.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>Cancelar</AlertDialogCancel>
-            <AlertDialogAction 
+            <AlertDialogCancel disabled={isDeleting}>
+              Cancelar
+            </AlertDialogCancel>
+            <AlertDialogAction
               variant="destructive"
               disabled={isDeleting}
               onClick={async (e) => {

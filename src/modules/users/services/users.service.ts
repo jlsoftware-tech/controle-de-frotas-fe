@@ -1,14 +1,10 @@
-import { getRequest, postRequest, putRequest, deleteRequest } from '@/shared/utils/axiosRequest';
-import type { CreateUserPayload, CreateUserResponse, UpdateUserPayload, GetUsersParams, UsersResponse } from '../types/user';
+import { deleteRequest, getRequest, postRequest, putRequest } from '@/shared/utils/axiosRequest';
+import type { CreateUserPayload, CreateUserResponse, GetUsersParams, UpdateUserPayload, UsersResponse } from '../types/user';
 
 export function getUsers(params: GetUsersParams) {
-  const query = new URLSearchParams({
-    page: params.page.toString(),
-    limit: params.limit.toString(),
-  });
+  const query = new URLSearchParams({ page: params.page.toString(), limit: params.limit.toString() });
   if (params.search) query.append('search', params.search);
   if (params.role && params.role !== 'ALL') query.append('role', params.role);
-
   return getRequest<UsersResponse>(`/users?${query.toString()}`);
 }
 

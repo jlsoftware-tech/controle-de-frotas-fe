@@ -1,7 +1,7 @@
 import Loading from '@/shared/components/Loading';
 import { APP_ROUTES } from '@/shared/constants/urlRoutes';
 import { AppLayout } from '@/shared/layout/AppLayout';
-import { ProtectedRoute } from "@/shared/router/ProtectedRoute";
+import { ProtectedRoute } from '@/shared/router/ProtectedRoute';
 import React, { lazy, Suspense } from 'react';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 
@@ -54,8 +54,8 @@ function Router(): React.JSX.Element {
           path: APP_ROUTES.USERS,
           element: (
             // <ProtectedRoute allowedRoles={['ADMIN']}>
-              <UsersList />
-            // </ProtectedRoute>  
+            <UsersList />
+            // </ProtectedRoute>
           ),
         },
       ],

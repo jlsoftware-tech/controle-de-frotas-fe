@@ -1,16 +1,16 @@
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useNavigate, Link } from 'react-router-dom';
-import { APP_ROUTES } from '@/shared/constants/urlRoutes';
+import logo from '@/assets/logo.png';
+import { useForgotPassword } from '@/modules/auth/hooks/useForgotPassword';
+import { requestResetSchema, type RequestResetFormValues } from '@/modules/auth/schemas/forgotPassword.schema';
+import { ThemeToggle } from '@/shared/components/ThemeToggle';
 import { Button } from '@/shared/components/ui/button';
 import { Input } from '@/shared/components/ui/input';
-import { Mail, ArrowLeft, CheckCircle2 } from 'lucide-react';
-import { requestResetSchema, type RequestResetFormValues } from '@/modules/auth/schemas/forgotPassword.schema';
-import { useForgotPassword } from '@/modules/auth/hooks/useForgotPassword';
+import { APP_ROUTES } from '@/shared/constants/urlRoutes';
 import useToastLoading from '@/shared/hooks/useToastLoading';
-import logo from '@/assets/logo.png';
-import { ThemeToggle } from '@/shared/components/ThemeToggle';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { ArrowLeft, CheckCircle2, Mail } from 'lucide-react';
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { Link, useNavigate } from 'react-router-dom';
 
 export default function ForgotPassword() {
   const navigate = useNavigate();
@@ -31,7 +31,7 @@ export default function ForgotPassword() {
   const onSubmit = async (data: RequestResetFormValues) => {
     toast({ message: 'Enviando e-mail...' });
     const res = await forgotPasswordMutation({ email: data.email });
-    
+
     if (res.success) {
       toast({ type: 'dismiss' });
       setIsSuccess(true);
@@ -43,10 +43,14 @@ export default function ForgotPassword() {
       {/* Lado Esquerdo - Branding/Informações (Oculto em telas menores) */}
       <div className="hidden md:flex flex-col justify-between w-1/2 p-12 bg-zinc-900 text-white relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/30 to-black/80 z-0 pointer-events-none"></div>
-        
+
         <div className="relative z-10 flex items-center gap-4">
           <div className="flex items-center justify-center p-2.5 bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl shadow-xl">
-            <img src={logo} alt="Logo" className="w-20 h-auto object-contain drop-shadow-md" />
+            <img
+              src={logo}
+              alt="Logo"
+              className="w-20 h-auto object-contain drop-shadow-md"
+            />
           </div>
           <div className="flex flex-col">
             <span className="text-2xl font-extrabold tracking-tight text-white drop-shadow-sm leading-none mb-1">
@@ -61,21 +65,25 @@ export default function ForgotPassword() {
         <div className="relative z-10 mb-20">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight mb-6 leading-tight text-white">
             {isSuccess ? (
-              <>E-mail enviado <br /> com sucesso.</>
+              <>
+                E-mail enviado <br /> com sucesso.
+              </>
             ) : (
-              <>Recupere seu acesso <br /> de forma rápida.</>
+              <>
+                Recupere seu acesso <br /> de forma rápida.
+              </>
             )}
           </h1>
           <p className="text-lg md:text-xl text-zinc-300 max-w-md font-medium">
-            {isSuccess 
+            {isSuccess
               ? 'Verifique sua caixa de entrada. Enviamos um link seguro para você redefinir sua senha.'
-              : 'Digite seu e-mail e enviaremos um link com instruções para redefinir sua senha.'
-            }
+              : 'Digite seu e-mail e enviaremos um link com instruções para redefinir sua senha.'}
           </p>
         </div>
 
         <div className="relative z-10 text-sm font-medium text-zinc-500">
-          &copy; {new Date().getFullYear()} JL Software. Todos os direitos reservados.
+          &copy; {new Date().getFullYear()} JL Software. Todos os direitos
+          reservados.
         </div>
       </div>
 
@@ -84,10 +92,10 @@ export default function ForgotPassword() {
         <div className="absolute top-8 right-8">
           <ThemeToggle />
         </div>
-        
+
         <div className="absolute top-8 left-8">
-          <Button 
-            variant="ghost" 
+          <Button
+            variant="ghost"
             onClick={() => navigate(APP_ROUTES.LOGIN)}
             className="flex items-center gap-2 text-muted-foreground hover:text-foreground"
           >
@@ -97,10 +105,13 @@ export default function ForgotPassword() {
         </div>
 
         <div className="w-full max-w-md flex flex-col gap-10 mt-12 md:mt-0">
-          
           <div className="md:hidden flex items-center gap-4 justify-center mb-6">
             <div className="flex items-center justify-center p-2 bg-primary/5 border border-primary/10 rounded-xl shadow-sm">
-              <img src={logo} alt="Logo" className="w-16 h-auto object-contain" />
+              <img
+                src={logo}
+                alt="Logo"
+                className="w-16 h-auto object-contain"
+              />
             </div>
             <div className="flex flex-col text-left">
               <span className="text-2xl font-extrabold tracking-tight text-foreground leading-none mb-1">
@@ -115,11 +126,19 @@ export default function ForgotPassword() {
           {!isSuccess ? (
             <>
               <div className="flex flex-col gap-2 text-center md:text-left">
-                <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">Esqueceu a senha?</h2>
-                <p className="text-muted-foreground text-sm sm:text-base">Digite o e-mail associado à sua conta e enviaremos um link para redefinir sua senha.</p>
+                <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
+                  Esqueceu a senha?
+                </h2>
+                <p className="text-muted-foreground text-sm sm:text-base">
+                  Digite o e-mail associado à sua conta e enviaremos um link
+                  para redefinir sua senha.
+                </p>
               </div>
 
-              <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
+              <form
+                onSubmit={handleSubmit(onSubmit)}
+                className="flex flex-col gap-5"
+              >
                 <Input
                   type="email"
                   label="E-mail cadastrado"
@@ -128,9 +147,16 @@ export default function ForgotPassword() {
                   message={errors.email?.message}
                   {...register('email')}
                 />
-                
-                <Button type="submit" className="w-full mt-2" size="lg" disabled={isSubmitting}>
-                  {isSubmitting ? 'Enviando link...' : 'Enviar link de recuperação'}
+
+                <Button
+                  type="submit"
+                  className="w-full mt-2"
+                  size="lg"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting
+                    ? 'Enviando link...'
+                    : 'Enviar link de recuperação'}
                 </Button>
               </form>
             </>
@@ -140,14 +166,18 @@ export default function ForgotPassword() {
                 <CheckCircle2 className="h-8 w-8 text-primary" />
               </div>
               <div className="flex flex-col gap-2">
-                <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">Link enviado!</h2>
+                <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
+                  Link enviado!
+                </h2>
                 <p className="text-muted-foreground text-sm sm:text-base px-4">
-                  Se existir uma conta associada a este e-mail, você receberá um link de redefinição de senha em instantes. Verifique também a pasta de spam.
+                  Se existir uma conta associada a este e-mail, você receberá um
+                  link de redefinição de senha em instantes. Verifique também a
+                  pasta de spam.
                 </p>
               </div>
-              <Button 
-                className="w-full mt-4" 
-                size="lg" 
+              <Button
+                className="w-full mt-4"
+                size="lg"
                 onClick={() => navigate(APP_ROUTES.LOGIN)}
               >
                 Voltar para o login
@@ -158,7 +188,10 @@ export default function ForgotPassword() {
           {!isSuccess && (
             <div className="text-center text-sm text-muted-foreground mt-4">
               Lembrou sua senha?{' '}
-              <Link to={APP_ROUTES.LOGIN} className="font-medium text-primary hover:underline transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-sm">
+              <Link
+                to={APP_ROUTES.LOGIN}
+                className="font-medium text-primary hover:underline transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-sm"
+              >
                 Fazer login
               </Link>
             </div>
