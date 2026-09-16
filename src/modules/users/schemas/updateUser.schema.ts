@@ -9,12 +9,17 @@ export const updateUserSchema = z
     email: z.email({ message: 'E-mail inválido' }).optional(),
     password: z
       .string()
-      .min(6, { message: 'A senha deve ter pelo menos 6 caracteres' })
+      .min(8, { message: 'A senha deve ter pelo menos 8 caracteres' })
       .optional()
       .or(z.literal('')),
     confirmPassword: z.string().optional().or(z.literal('')),
-    role: z
-      .enum(['ADMIN', 'USER'], { message: 'Selecione um nível de acesso' })
+    profile_id: z
+      .string()
+      .min(1, { message: 'Selecione um perfil de acesso' })
+      .optional(),
+    secretariat_id: z
+      .string()
+      .min(1, { message: 'Selecione uma secretaria' })
       .optional(),
   })
   .refine(

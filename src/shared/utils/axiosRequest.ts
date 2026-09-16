@@ -22,10 +22,7 @@ function handleError(err: unknown): ApiResponse<never> {
   };
 }
 
-export async function postRequest<T>(
-  url: string,
-  body: unknown
-): Promise<ApiResponse<T>> {
+export async function postRequest<T>(url: string, body: unknown): Promise<ApiResponse<T>> {
   const axios = getAxios();
   try {
     const { data } = await axios.post<ApiResponse<T>>(url, body);

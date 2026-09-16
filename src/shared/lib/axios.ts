@@ -1,4 +1,5 @@
 import useAuthStore from '@/modules/auth/store/useAuthStore';
+import { APP_ROUTES } from '@/shared/constants/urlRoutes';
 import axios, { type AxiosInstance } from 'axios';
 
 const URL_API = import.meta.env.VITE_URL_API;
@@ -14,7 +15,15 @@ const getAxios = (timeout: number = 600000) => {
       Authorization: `Bearer ${token}`,
     },
   });
-
+  instance.interceptors.response.use(
+    (response) => response,
+    (error) => {
+      if (token && error?.response?.status === 401)
+        useAuthStore.getState().logout();
+        if (window.location.pathname !== APP_ROUTES.LOGIN) window.location.href = APP_ROUTES.LOGIN;    
+      return Promise.reject(error);
+    }
+  );
   return instance;
 };
 

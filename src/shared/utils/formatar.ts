@@ -31,16 +31,18 @@ export const removeMask = (item: string): string => {
   return item.replace(/\D/g, '');
 };
 
-export const formatDateTime = (data: Date | string, tipo: '' | 'data' | 'hora' = '', segundos: boolean = false): string => {
-  if (tipo == 'data') return moment(data).format('DD/MM/YYYY');
+export const formatDateTime = (date: Date | string,  tipo: '' | 'data' | 'hora' = '', segundos: boolean = false): string => {
+  if (!date) return '-';
+  if (tipo == 'data') return moment(date).format('DD/MM/YYYY');
   if (tipo == 'hora')
     return segundos
-      ? moment(data).format('HH:mm:ss')
-      : moment(data).format('HH:mm');
+      ? moment(date).format('HH:mm:ss')
+      : moment(date).format('HH:mm');
   return segundos
-    ? moment(data).format('DD/MM/YYYY HH:mm:ss')
-    : moment(data).format('DD/MM/YYYY HH:mm');
+    ? moment(date).format('DD/MM/YYYY HH:mm:ss')
+    : moment(date).format('DD/MM/YYYY HH:mm');
 };
+
 
 export const formatDateName = (date: string) => {
   return new Date(date).toLocaleDateString('pt-BR', {

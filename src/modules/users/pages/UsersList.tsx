@@ -1,4 +1,5 @@
-import { getRoleLabel, roleOptions } from '@/modules/auth/utils/roles';
+import { useProfiles } from '@/modules/profiles/hooks/useProfiles';
+import { useSecretariats } from '@/modules/secretariats/hooks/useSecretariats';
 import { useUsers } from '@/modules/users/hooks/useUsers';
 import {
   AlertDialog,
@@ -12,36 +13,15 @@ import {
   AlertDialogTitle,
 } from '@/shared/components/ui/alert-dialog';
 import { Button } from '@/shared/components/ui/button';
-import {
-  Card,
-  CardAction,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/shared/components/ui/card';
-import { Input, InputSelect } from '@/shared/components/ui/input';
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationNext,
-  PaginationPrevious,
-} from '@/shared/components/ui/pagination';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/shared/components/ui/table';
+import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/components/ui/card';
+import { Input } from '@/shared/components/ui/input';
+import { Pagination, PaginationContent, PaginationItem, PaginationNext, PaginationPrevious } from '@/shared/components/ui/pagination';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/shared/components/ui/table';
 import useDebounce from '@/shared/hooks/useDebounce';
 import useToastLoading from '@/shared/hooks/useToastLoading';
-import { formatDateTime } from '@/shared/utils/formatar';
 import { useQueryClient } from '@tanstack/react-query';
-import { AlertTriangle, Edit2, Search, Trash2, UserCog } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { Edit2, Search, Trash2, UserCog, AlertTriangle } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { UserFormModal } from '../components/UserFormModal';
 import type { User } from '../types/user';
@@ -52,17 +32,15 @@ export default function UsersList() {
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
 
-  const { register, control, watch, setValue } = useForm({
+  const { register, watch, setValue } = useForm({
     defaultValues: {
       search: '',
-      role: 'ALL',
     },
   });
 
   const searchValue = watch('search');
-  const role = watch('role');
   const [debouncedSearch, setDebouncedSearch] = useState('');
-  const limit = 10;
+  const perPage = 10;
 
   const debouncedSetSearch = useDebounce((val: string) => {
     setDebouncedSearch(val);
@@ -73,10 +51,6 @@ export default function UsersList() {
     debouncedSetSearch(searchValue);
   }, [searchValue]);
 
-  useEffect(() => {
-    setPage(1);
-  }, [role]);
-
   const {
     data: usersResponse,
     isLoading,
@@ -84,21 +58,33 @@ export default function UsersList() {
     deleteMutation,
   } = useUsers({
     page,
-    limit,
+    per_page: perPage,
     search: debouncedSearch,
-    role,
   });
+
+  const { data: profiles = [] } = useProfiles();
+  const { data: secretariats = [] } = useSecretariats();
+
+  const profileNameById = useMemo(
+    () => new Map(profiles.map((p) => [p.id, p.name])),
+    [profiles]
+  );
+  const secretariatNameById = useMemo(
+    () => new Map(secretariats.map((s) => [s.id, s.name])),
+    [secretariats]
+  );
 
   const isDeleting = deleteMutation.isPending;
   const queryClient = useQueryClient();
   const toast = useToastLoading();
 
-  const totalPages = usersResponse?.totalPages || 0;
-  const users = usersResponse?.data || [];
+  const pagination = usersResponse?.pagination;
+  const totalPages = pagination?.totalPages || 0;
+  const totalEntries = pagination?.totalEntries || 0;
+  const users = usersResponse?.items || [];
 
   const handlePreviousPage = () => setPage((old) => Math.max(old - 1, 1));
-  const handleNextPage = () =>
-    !isPlaceholderData && page < totalPages && setPage((old) => old + 1);
+  const handleNextPage = () => !isPlaceholderData && page < totalPages && setPage((old) => old + 1);
 
   return (
     <div className="flex flex-col gap-4">
@@ -108,35 +94,20 @@ export default function UsersList() {
           <CardAction>
             <Button
               variant="ghost"
-              onClick={() => {
-                setValue('search', '');
-                setValue('role', 'ALL');
-              }}
-              disabled={!searchValue && role === 'ALL'}
+              onClick={() => setValue('search', '')}
+              disabled={!searchValue}
             >
               Limpar Filtros
             </Button>
           </CardAction>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Input
-              label="Busca"
-              placeholder="Pesquise por nome ou e-mail..."
-              iconPreffix={<Search className="h-4 w-4" />}
-              {...register('search')}
-            />
-
-            <InputSelect
-              name="role"
-              control={control}
-              label="Nível de Acesso"
-              options={[
-                { label: 'Todos os Níveis', value: 'ALL' },
-                ...roleOptions,
-              ]}
-            />
-          </div>
+          <Input
+            label="Busca"
+            placeholder="Pesquise por nome..."
+            iconPreffix={<Search className="h-4 w-4" />}
+            {...register('search')}
+          />
         </CardContent>
       </Card>
 
@@ -163,7 +134,8 @@ export default function UsersList() {
               <TableRow>
                 <TableHead>Nome</TableHead>
                 <TableHead>E-mail</TableHead>
-                <TableHead>Nível de Acesso</TableHead>
+                <TableHead>Perfil de Acesso</TableHead>
+                <TableHead>Secretaria</TableHead>
                 <TableHead>Data de Criação</TableHead>
                 <TableHead className="w-24 text-right">Ações</TableHead>
               </TableRow>
@@ -171,7 +143,7 @@ export default function UsersList() {
             <TableBody>
               {users.length === 0 && !isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="h-24 text-center">
+                  <TableCell colSpan={6} className="h-24 text-center">
                     Nenhum usuário encontrado.
                   </TableCell>
                 </TableRow>
@@ -180,8 +152,9 @@ export default function UsersList() {
                   <TableRow key={user.id}>
                     <TableCell className="font-medium">{user.name}</TableCell>
                     <TableCell>{user.email}</TableCell>
-                    <TableCell>{getRoleLabel(user.role)}</TableCell>
-                    <TableCell>{formatDateTime(user.createdAt)}</TableCell>
+                    <TableCell>{profileNameById.get(user.profile_id) ?? '-'}</TableCell>
+                    <TableCell>{secretariatNameById.get(user.secretariat_id) ?? '-'}</TableCell>
+                    <TableCell>{user.created_at}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-2">
                         <Button
@@ -214,9 +187,9 @@ export default function UsersList() {
             <div className="text-sm text-muted-foreground text-center sm:text-left">
               {usersResponse ? (
                 <span>
-                  Mostrando {(page - 1) * limit + 1} a{' '}
-                  {Math.min(page * limit, usersResponse.total)} de{' '}
-                  {usersResponse.total} usuários
+                  Mostrando {totalEntries === 0 ? 0 : (page - 1) * perPage + 1} a{' '}
+                  {Math.min(page * perPage, totalEntries)} de{' '}
+                  {totalEntries} usuários
                 </span>
               ) : (
                 <span>Carregando informações...</span>
@@ -273,9 +246,7 @@ export default function UsersList() {
           if (!val) setEditingUser(null);
         }}
         userToEdit={editingUser}
-        onSuccess={() => {
-          queryClient.invalidateQueries({ queryKey: ['users'] });
-        }}
+        onSuccess={() => { queryClient.invalidateQueries({ queryKey: ['users'] }); }}
       />
 
       <AlertDialog

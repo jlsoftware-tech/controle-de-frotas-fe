@@ -1,4 +1,5 @@
 import type { User } from '@/modules/users/types/user';
+import { useMenuStore } from '@/shared/store/useMenuStore';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
@@ -18,7 +19,11 @@ export const useAuthStore = create<AuthState>()(
       token: null,
       setUser: (user) => set({ user }),
       setToken: (token) => set({ token }),
-      logout: () => set({ user: null, token: null }),
+      logout: () => {
+        set({ user: null, token: null });
+        // Evita vazar o menu de uma sessão pro próximo login.
+        useMenuStore.getState().clear();
+      },
       isAuthenticated: () => Boolean(get().token),
     }),
     {

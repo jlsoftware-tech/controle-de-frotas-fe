@@ -11,4 +11,12 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  server: {
+    watch: {
+      // Evita que o watcher (polling, necessário no bind mount do Docker no
+      // Windows) varra o .pnpm-store e a .git, que têm dezenas de milhares
+      // de arquivos e travam o carregamento no dev server.
+      ignored: ['**/.pnpm-store/**', '**/.git/**'],
+    },
+  },
 });

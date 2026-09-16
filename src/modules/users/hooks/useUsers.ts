@@ -1,20 +1,16 @@
-import type {
-  GetUsersParams,
-  UpdateUserPayload,
-  UsersResponse,
-} from '@/modules/users/types/user';
+import type { GetUsersParams, UpdateUserPayload, UsersListing } from '@/modules/users/types/user';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import {
-  createUser,
-  deleteUser,
-  getUsers,
-  updateUser,
-} from '../services/users.service';
+import { createUser, deleteUser, getUsers, updateUser } from '../services/users.service';
 
-const fetchUsers = async (params: GetUsersParams): Promise<UsersResponse> => {
+const emptyListing: UsersListing = {
+  items: [],
+  pagination: { numPerPage: 10, currPage: 1, totalEntries: 0, totalPages: 0 },
+};
+
+const fetchUsers = async (params: GetUsersParams): Promise<UsersListing> => {
   const response = await getUsers(params);
-  if (response.success && response.data) return response.data as UsersResponse;
-  return { data: [], total: 0, totalPages: 0 };
+  if (response.success && response.data) return response.data;
+  return emptyListing;
 };
 
 export function useUsers(params?: GetUsersParams) {
@@ -24,9 +20,10 @@ export function useUsers(params?: GetUsersParams) {
     queryKey: [
       'users',
       params?.page,
-      params?.limit,
+      params?.per_page,
       params?.search,
-      params?.role,
+      params?.sort,
+      params?.order,
     ],
     queryFn: () => fetchUsers(params!),
     enabled: !!params,
@@ -39,8 +36,7 @@ export function useUsers(params?: GetUsersParams) {
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: UpdateUserPayload }) =>
-      updateUser(id, data),
+    mutationFn: ({ id, data }: { id: number; data: UpdateUserPayload }) => updateUser(id, data),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['users'] }),
   });
 

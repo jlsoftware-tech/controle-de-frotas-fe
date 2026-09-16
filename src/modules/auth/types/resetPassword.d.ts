@@ -1,4 +1,6 @@
 export interface ResetPasswordPayload {
   token: string;
-  password?: string;
+  email: string;
+  password: string;
+  password_confirmation: string;
 }

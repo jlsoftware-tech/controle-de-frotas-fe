@@ -34,20 +34,19 @@ export default function Login() {
 
   const onSubmit = async (data: LoginFormValues) => {
     toast({ message: 'Entrando...' });
-    const res = await loginMutation(data);
-    if (res.success && res.token && res.data) {
-      setToken(res.token);
-      setUser(res.data);
+    const response = await loginMutation(data);
+    if (response.success) {
+      setToken(response.data?.token || '');
+      setUser(response.data?.user || null);
       navigate(APP_ROUTES.HOME);
     }
-    toast({ type: res.type, message: res.message });
+    toast({ type: response.type, message: response.message });
   };
 
   return (
     <div className="w-full min-h-screen flex flex-col md:flex-row bg-background">
       {/* Lado Esquerdo - Branding/Informações (Oculto em telas menores) */}
       <div className="hidden md:flex flex-col justify-between w-1/2 p-12 bg-zinc-900 text-white relative overflow-hidden">
-        {/* Efeito de Gradiente no Fundo */}
         <div className="absolute inset-0 bg-gradient-to-br from-primary/30 to-black/80 z-0 pointer-events-none"></div>
 
         <div className="relative z-10 flex items-center gap-4">

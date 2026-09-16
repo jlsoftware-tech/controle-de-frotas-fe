@@ -1,32 +1,16 @@
-import { roleOptions } from '@/modules/auth/utils/roles';
+import { useProfiles } from '@/modules/profiles/hooks/useProfiles';
+import { useSecretariats } from '@/modules/secretariats/hooks/useSecretariats';
 import { Button } from '@/shared/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/shared/components/ui/dialog';
-import {
-  Input,
-  InputPassword,
-  InputSelect,
-} from '@/shared/components/ui/input';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/shared/components/ui/dialog';
+import { Input, InputPassword, InputSelect } from '@/shared/components/ui/input';
 import useToastLoading from '@/shared/hooks/useToastLoading';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Lock, Mail, User as UserIcon } from 'lucide-react';
+import { Landmark, Lock, Mail, User as UserIcon, UserCog } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useUsers } from '../hooks/useUsers';
-import {
-  createUserSchema,
-  type CreateUserFormValues,
-} from '../schemas/createUser.schema';
-import {
-  updateUserSchema,
-  type UpdateUserFormValues,
-} from '../schemas/updateUser.schema';
+import { createUserSchema, type CreateUserFormValues } from '../schemas/createUser.schema';
+import { updateUserSchema, type UpdateUserFormValues } from '../schemas/updateUser.schema';
 import type { User } from '../types/user';
 
 interface UserFormModalProps {
@@ -36,17 +20,16 @@ interface UserFormModalProps {
   userToEdit?: User | null;
 }
 
-export function UserFormModal({
-  open,
-  onOpenChange,
-  onSuccess,
-  userToEdit,
-}: UserFormModalProps) {
-  const [portalContainer, setPortalContainer] =
-    useState<HTMLFormElement | null>(null);
+export function UserFormModal({ open, onOpenChange, onSuccess, userToEdit }: UserFormModalProps) {
+  const [portalContainer, setPortalContainer] = useState<HTMLFormElement | null>(null);
   const toast = useToastLoading();
   const { createMutation, updateMutation } = useUsers();
+  const { data: profiles = [] } = useProfiles();
+  const { data: secretariats = [] } = useSecretariats();
   const isEditing = !!userToEdit;
+
+  const profileOptions = profiles.map((p) => ({ value: String(p.id), label: p.name }));
+  const secretariatOptions = secretariats.map((s) => ({ value: String(s.id), label: s.name }));
 
   const {
     register,
@@ -61,7 +44,8 @@ export function UserFormModal({
       email: '',
       password: '',
       confirmPassword: '',
-      role: 'USER',
+      profile_id: '',
+      secretariat_id: '',
     },
   });
 
@@ -73,7 +57,8 @@ export function UserFormModal({
           email: userToEdit.email,
           password: '',
           confirmPassword: '',
-          role: userToEdit.role,
+          profile_id: String(userToEdit.profile_id),
+          secretariat_id: String(userToEdit.secretariat_id),
         });
       } else {
         reset({
@@ -81,7 +66,8 @@ export function UserFormModal({
           email: '',
           password: '',
           confirmPassword: '',
-          role: 'USER',
+          profile_id: '',
+          secretariat_id: '',
         });
       }
     }
@@ -90,17 +76,18 @@ export function UserFormModal({
   type FormData = CreateUserFormValues | UpdateUserFormValues;
 
   const onSubmit = async (data: FormData) => {
-    toast({
-      message: isEditing ? 'Atualizando usuário...' : 'Salvando usuário...',
-    });
+    toast({ message: isEditing ? 'Atualizando usuário...' : 'Salvando usuário...' });
 
     let res;
     if (isEditing) {
       const payload = {
         name: data.name,
         email: data.email,
-        role: data.role,
-        ...(data.password ? { password: data.password } : {}),
+        ...(data.profile_id ? { profile_id: Number(data.profile_id) } : {}),
+        ...(data.secretariat_id ? { secretariat_id: Number(data.secretariat_id) } : {}),
+        ...(data.password
+          ? { password: data.password, password_confirmation: data.confirmPassword }
+          : {}),
       };
       res = await updateMutation.mutateAsync({
         id: userToEdit.id,
@@ -112,7 +99,9 @@ export function UserFormModal({
         name: createData.name,
         email: createData.email,
         password: createData.password,
-        role: createData.role,
+        password_confirmation: createData.confirmPassword,
+        profile_id: Number(createData.profile_id),
+        secretariat_id: Number(createData.secretariat_id),
       };
       res = await createMutation.mutateAsync(payload);
     }
@@ -178,15 +167,28 @@ export function UserFormModal({
                 {...register('confirmPassword')}
               />
             </div>
-            <div className="col-span-1 md:col-span-2">
+            <div className="col-span-1">
               <InputSelect
-                name="role"
+                name="profile_id"
                 control={control}
-                label="Nível de Acesso"
+                label="Perfil de Acesso"
                 placeholder="Selecione..."
+                iconPreffix={<UserCog className="h-4 w-4" />}
                 contentPortalContainer={portalContainer}
-                options={roleOptions}
-                message={errors.role?.message}
+                options={profileOptions}
+                message={errors.profile_id?.message}
+              />
+            </div>
+            <div className="col-span-1">
+              <InputSelect
+                name="secretariat_id"
+                control={control}
+                label="Secretaria"
+                placeholder="Selecione..."
+                iconPreffix={<Landmark className="h-4 w-4" />}
+                contentPortalContainer={portalContainer}
+                options={secretariatOptions}
+                message={errors.secretariat_id?.message}
               />
             </div>
           </div>

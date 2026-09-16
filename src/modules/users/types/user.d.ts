@@ -1,31 +1,41 @@
-import type { CreateUserFormValues } from '../schemas/createUser.schema';
-
 export interface User {
-  id: string;
+  id: number;
   name: string;
   email: string;
   profile_id: number;
-  createdAt: string;
-  updatedAt: string;
+  secretariat_id: number;
+  created_at: string;
+  updated_at: string;
+  deleted_at?: string | null;
 }
 
-export type CreateUserPayload = Omit<CreateUserFormValues, 'confirmPassword'>;
-
-export interface CreateUserResponse {
-  user: User;
-}
+export type CreateUserPayload = {
+  name: string;
+  email: string;
+  password: string;
+  password_confirmation: string;
+  profile_id: number;
+  secretariat_id: number;
+};
 
 export type UpdateUserPayload = Partial<CreateUserPayload>;
 
 export type GetUsersParams = {
   page: number;
-  limit: number;
+  per_page: number;
   search?: string;
-  role?: string;
+  sort?: 'name' | 'email' | 'profile_id' | 'created_at';
+  order?: 'asc' | 'desc';
 };
 
-export type UsersResponse = {
-  data: User[];
-  total: number;
+export type UsersPagination = {
+  numPerPage: number;
+  currPage: number;
+  totalEntries: number;
   totalPages: number;
+};
+
+export type UsersListing = {
+  items: User[];
+  pagination: UsersPagination;
 };

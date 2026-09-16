@@ -1,14 +1,13 @@
 export interface NavigationSubItem {
-  nameSubMenu: string;
-  link: string;
+  name_sub_menu: string;
+  url: string;
   icon: string;
 }
 
 export interface NavigationItem {
-  nameMenu: string;
-  link: string;
+  name_menu: string;
   icon: string;
-  subMenu?: NavigationSubItem[];
+  sub_menu?: NavigationSubItem[];
 }
 
 export type NavigationResponse = NavigationItem[];

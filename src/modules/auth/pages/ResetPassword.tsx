@@ -19,6 +19,9 @@ export default function ResetPassword() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token');
+  // O link do e-mail (ResetPasswordApiNotification) manda token E email —
+  // o backend exige os dois pra achar o registro de reset (Password::reset).
+  const email = searchParams.get('email');
   const [isSuccess, setIsSuccess] = useState(false);
   const toast = useToastLoading();
 
@@ -34,17 +37,22 @@ export default function ResetPassword() {
   const { mutateAsync: resetPasswordMutation } = useResetPassword();
 
   const onSubmit = async (data: ResetPasswordFormValues) => {
-    if (!token) return;
+    if (!token || !email) return;
 
     toast({ message: 'Redefinindo senha...' });
-    const res = await resetPasswordMutation({ token, password: data.password });
+    const res = await resetPasswordMutation({
+      token,
+      email,
+      password: data.password,
+      password_confirmation: data.confirmPassword,
+    });
     if (res.success) {
       toast({ type: 'dismiss' });
       setIsSuccess(true);
     } else toast({ type: res.type, message: res.message });
   };
 
-  if (!token) {
+  if (!token || !email) {
     return (
       <div className="w-full min-h-screen flex items-center justify-center bg-background p-4">
         <div className="max-w-md w-full bg-card border rounded-2xl shadow-sm p-8 text-center flex flex-col items-center gap-4">

@@ -3,16 +3,20 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      target: development # Aponta para o estágio de desenvolvimento do Dockerfile unificado
+      target: development
+
     container_name: controle-de-frotas-dev
+
     ports:
-      - '5174:5174'
+      - "5174:5174"
+
     volumes:
-      # Mapeia o seu código local para dentro do container (Hot Reload / HMR)
       - .:/app
-      # Protege a pasta node_modules do container de ser sobrescrita pelo seu sistema operacional local
       - /app/node_modules
+      - /app/.pnpm-store
+
     environment:
-      - CHOKIDAR_USEPOLLING=true # Garante que o hot-reload funcione corretamente via volume
-      - CI=true # Evita que o pnpm peça confirmação no terminal
-    command: sh -c "pnpm install --ignore-scripts && pnpm dev --host"
+      CHOKIDAR_USEPOLLING: "true"
+      WATCHPACK_POLLING: "true"
+
+    command: pnpm dev --host 0.0.0.0 --port 5174

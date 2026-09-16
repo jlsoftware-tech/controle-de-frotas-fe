@@ -1,21 +1,31 @@
 import { deleteRequest, getRequest, postRequest, putRequest } from '@/shared/utils/axiosRequest';
-import type { CreateUserPayload, CreateUserResponse, GetUsersParams, UpdateUserPayload, UsersResponse } from '../types/user';
+import type {
+  CreateUserPayload,
+  GetUsersParams,
+  UpdateUserPayload,
+  User,
+  UsersListing,
+} from '../types/user';
 
 export function getUsers(params: GetUsersParams) {
-  const query = new URLSearchParams({ page: params.page.toString(), limit: params.limit.toString() });
+  const query = new URLSearchParams({
+    page: params.page.toString(),
+    per_page: params.per_page.toString(),
+  });
   if (params.search) query.append('search', params.search);
-  if (params.role && params.role !== 'ALL') query.append('role', params.role);
-  return getRequest<UsersResponse>(`/users?${query.toString()}`);
+  if (params.sort) query.append('sort', params.sort);
+  if (params.order) query.append('order', params.order);
+  return getRequest<UsersListing>(`/users?${query.toString()}`);
 }
 
 export function createUser(data: CreateUserPayload) {
-  return postRequest<CreateUserResponse>('/users', data);
+  return postRequest<User>('/users', data);
 }
 
-export function updateUser(id: string, data: UpdateUserPayload) {
-  return putRequest<CreateUserResponse>(`/users/${id}`, data);
+export function updateUser(id: number, data: UpdateUserPayload) {
+  return putRequest<User>(`/users/${id}`, data);
 }
 
-export function deleteUser(id: string) {
+export function deleteUser(id: number) {
   return deleteRequest(`/users/${id}`);
 }

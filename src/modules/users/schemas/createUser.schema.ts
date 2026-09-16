@@ -8,13 +8,16 @@ export const createUserSchema = z
     email: z.email({ message: 'E-mail inválido' }),
     password: z
       .string()
-      .min(6, { message: 'A senha deve ter pelo menos 6 caracteres' }),
+      .min(8, { message: 'A senha deve ter pelo menos 8 caracteres' }),
     confirmPassword: z
       .string()
-      .min(6, { message: 'A confirmação deve ter pelo menos 6 caracteres' }),
-    role: z.enum(['ADMIN', 'USER'], {
-      message: 'Selecione um nível de acesso',
-    }),
+      .min(8, { message: 'A confirmação deve ter pelo menos 8 caracteres' }),
+    profile_id: z
+      .string()
+      .min(1, { message: 'Selecione um perfil de acesso' }),
+    secretariat_id: z
+      .string()
+      .min(1, { message: 'Selecione uma secretaria' }),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: 'As senhas não coincidem',
