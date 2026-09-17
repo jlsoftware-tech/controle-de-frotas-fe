@@ -16,7 +16,7 @@ function App() {
           newestOnTop
           closeOnClick
           pauseOnHover
-          theme="colored"
+          theme="light"
         />
         <ReactQueryDevtools initialIsOpen={false} />
       </QueryClientProvider>

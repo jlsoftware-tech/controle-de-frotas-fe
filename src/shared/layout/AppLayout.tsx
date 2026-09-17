@@ -1,5 +1,5 @@
 import useAuthStore from '@/modules/auth/store/useAuthStore';
-import { SidebarProvider } from '@/shared/components/ui/sidebar';
+import { SidebarInset, SidebarProvider } from '@/shared/components/ui/sidebar';
 import { TooltipProvider } from '@/shared/components/ui/tooltip';
 import { useMenuStore } from '@/shared/store/useMenuStore';
 import { useEffect } from 'react';
@@ -18,14 +18,14 @@ export function AppLayout() {
 
   return (
     <TooltipProvider>
-      <SidebarProvider>
+      <SidebarProvider className="h-svh overflow-hidden">
         <AppSidebar />
-        <div className="flex w-full flex-col">
+        <SidebarInset className="overflow-hidden">
           <AppHeader />
           <main className="flex-1 overflow-auto bg-muted p-8">
             <Outlet />
           </main>
-        </div>
+        </SidebarInset>
       </SidebarProvider>
     </TooltipProvider>
   );

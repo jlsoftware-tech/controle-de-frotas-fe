@@ -36,7 +36,7 @@ export default function Login() {
     toast({ message: 'Entrando...' });
     const response = await loginMutation(data);
     if (response.success) {
-      setToken(response.data?.token || '');
+      setToken(response.data?.token || null);
       setUser(response.data?.user || null);
       navigate(APP_ROUTES.HOME);
     }

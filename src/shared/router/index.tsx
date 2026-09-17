@@ -3,6 +3,8 @@ import { APP_ROUTES } from '@/shared/constants/urlRoutes';
 import { AppLayout } from '@/shared/layout/AppLayout';
 import React, { lazy, Suspense } from 'react';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { ProtectedRoute } from './protectedRouter';
+import { PublicRoute } from './publicRouter';
 
 const Login = lazy(() => import('@/modules/auth/pages/Login'));
 const ForgotPassword = lazy(() => import('@/modules/auth/pages/ForgotPassword'));
@@ -15,7 +17,11 @@ function Router(): React.JSX.Element {
   const router = createBrowserRouter([
     {
       path: APP_ROUTES.LOGIN,
-      element: <Login />,
+      element: (
+        <PublicRoute>
+          <Login />
+        </PublicRoute>
+      ),
     },
     {
       path: APP_ROUTES.FORGOT_PASSWORD,
@@ -27,7 +33,11 @@ function Router(): React.JSX.Element {
     },
     {
       path: APP_ROUTES.HOME,
-      element: (<AppLayout /> ),
+      element: (
+        <ProtectedRoute>
+          <AppLayout />
+        </ProtectedRoute>
+      ),
       children: [
         {
           index: true,

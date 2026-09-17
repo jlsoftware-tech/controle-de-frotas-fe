@@ -1,7 +1,7 @@
 import type { User } from '@/modules/users/types/user';
 
 export type LoginResponse = {
-  user: User;
+  user: User; 
   token: string;
 };
 

@@ -15,17 +15,17 @@ export function getUsers(params: GetUsersParams) {
   if (params.search) query.append('search', params.search);
   if (params.sort) query.append('sort', params.sort);
   if (params.order) query.append('order', params.order);
-  return getRequest<UsersListing>(`/users?${query.toString()}`);
+  return getRequest<UsersListing>(`users?${query.toString()}`);
 }
 
 export function createUser(data: CreateUserPayload) {
-  return postRequest<User>('/users', data);
+  return postRequest<User>('users', data);
 }
 
 export function updateUser(id: number, data: UpdateUserPayload) {
-  return putRequest<User>(`/users/${id}`, data);
+  return putRequest<User>(`users/${id}`, data);
 }
 
 export function deleteUser(id: number) {
-  return deleteRequest(`/users/${id}`);
+  return deleteRequest(`users/${id}`);
 }

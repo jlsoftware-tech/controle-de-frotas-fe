@@ -39,7 +39,7 @@ export function AppHeader() {
 
   return (
     <header className="sticky top-0 z-50 flex h-16 shrink-0 items-center gap-4 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm px-6 transition-all">
-      <SidebarTrigger className="-ml-2 hover:bg-muted text-muted-foreground hover:text-foreground" />
+      <SidebarTrigger  />
       <Separator orientation="vertical" className="h-6" />
 
       <div className="flex flex-col">

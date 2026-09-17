@@ -1,13 +1,20 @@
-export interface User {
+export type User = {
   id: number;
   name: string;
   email: string;
-  profile_id: number;
-  secretariat_id: number;
   created_at: string;
   updated_at: string;
-  deleted_at?: string | null;
-}
+} & {
+  profile: {
+    id: number;
+    name: string;
+  };
+  secretariat: {
+    id: number;
+    name: string;
+    acronym: string;
+  };
+};
 
 export type CreateUserPayload = {
   name: string;
