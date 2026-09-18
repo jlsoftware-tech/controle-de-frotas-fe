@@ -18,9 +18,10 @@ const getAxios = (timeout: number = 600000) => {
   instance.interceptors.response.use(
     (response) => response,
     (error) => {
-      if (token && error?.response?.status === 401)
+      if (token && error?.response?.status === 401) {
         useAuthStore.getState().logout();
-        if (window.location.pathname !== APP_ROUTES.LOGIN) window.location.href = APP_ROUTES.LOGIN;    
+        window.location.href = APP_ROUTES.LOGIN;
+      }
       return Promise.reject(error);
     }
   );

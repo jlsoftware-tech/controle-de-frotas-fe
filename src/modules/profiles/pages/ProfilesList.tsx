@@ -10,32 +10,26 @@ import {
   AlertDialogTitle,
 } from '@/shared/components/ui/alert-dialog';
 import { Button } from '@/shared/components/ui/button';
-import {
-  Card,
-  CardAction,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/shared/components/ui/card';
+import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/components/ui/card';
 import { Input } from '@/shared/components/ui/input';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/shared/components/ui/table';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/shared/components/ui/table';
 import useDebounce from '@/shared/hooks/useDebounce';
 import useToastLoading from '@/shared/hooks/useToastLoading';
 import { useQueryClient } from '@tanstack/react-query';
-import { AlertTriangle, Edit2, Search, ShieldPlus, Trash2 } from 'lucide-react';
+import { AlertTriangle, ArrowDown, ArrowUp, ArrowUpDown, Edit2, Loader2, Search, ShieldPlus, Trash2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { ProfileFormModal } from '../components/ProfileFormModal';
 import { useProfiles } from '../hooks/useProfiles';
-import type { Profile } from '../types/profile';
+import type { GetProfilesParams, Profile } from '../types/profile';
+
+type SortableField = NonNullable<GetProfilesParams['sort']>;
+
+const SORTABLE_COLUMNS: { field: SortableField; label: string }[] = [
+  { field: 'name', label: 'Nome' },
+  { field: 'description', label: 'Descrição' },
+  { field: 'created_at', label: 'Data de Criação' },
+];
 
 export default function ProfilesList() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -55,15 +49,38 @@ export default function ProfilesList() {
     debouncedSetSearch(searchValue);
   }, [searchValue]);
 
+  const [sort, setSort] = useState<SortableField>();
+  const [order, setOrder] = useState<'asc' | 'desc'>();
+
+  const handleSort = (field: SortableField) => {
+    if (sort === field) setOrder((prev) => (prev === 'asc' ? 'desc' : 'asc'));
+    else {
+      setSort(field);
+      setOrder('asc');
+    }
+  };
+
   const {
     data: profiles = [],
     isLoading,
+    isFetching,
     deleteMutation,
-  } = useProfiles({ search: debouncedSearch });
+  } = useProfiles({ search: debouncedSearch, sort, order });
 
   const isDeleting = deleteMutation.isPending;
   const queryClient = useQueryClient();
   const toast = useToastLoading();
+
+  const handleDeleteProfile = async () => {
+    if (!profileToDelete) return;
+    toast({ message: 'Excluindo perfil...' });
+    const res = await deleteMutation.mutateAsync(profileToDelete.id);
+    if (res.success) {
+      setProfileToDelete(null);
+      queryClient.invalidateQueries({ queryKey: ['profiles'] });
+    }
+    toast({ type: res.type, message: res.message });
+  };
 
   return (
     <div className="flex flex-col gap-4">
@@ -113,14 +130,29 @@ export default function ProfilesList() {
           <Table loading={isLoading}>
             <TableHeader>
               <TableRow>
-                <TableHead>Nome</TableHead>
-                <TableHead>Descrição</TableHead>
+                {SORTABLE_COLUMNS.map(({ field, label }) => (
+                  <TableHead key={field}>
+                    <button
+                      type="button"
+                      onClick={() => handleSort(field)}
+                      disabled={isFetching}
+                      className="flex items-center gap-1 hover:text-foreground disabled:cursor-not-allowed disabled:hover:text-inherit"
+                    >
+                      {label}
+                      {sort === field && isFetching ? (
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      ) : sort === field ? (
+                        order === 'asc' ? <ArrowUp className="h-3.5 w-3.5" />  : <ArrowDown className="h-3.5 w-3.5" />
+                      ) :  <ArrowUpDown className="h-3.5 w-3.5 text-muted-foreground/50" />
+                       }
+                    </button>
+                  </TableHead>
+                ))}
                 <TableHead>Permissões</TableHead>
-                <TableHead>Data de Criação</TableHead>
                 <TableHead className="w-24 text-right">Ações</TableHead>
               </TableRow>
             </TableHeader>
-            <TableBody>
+            <TableBody className={isFetching ? 'opacity-60 transition-opacity' : 'transition-opacity'}>
               {profiles.length === 0 && !isLoading ? (
                 <TableRow>
                   <TableCell colSpan={5} className="h-24 text-center">
@@ -136,10 +168,10 @@ export default function ProfilesList() {
                     <TableCell className="text-muted-foreground">
                       {profile.description || '-'}
                     </TableCell>
+                    <TableCell> {profile.created_at} </TableCell>
                     <TableCell>
                       {profile.permissions?.length ?? 0} permissões
                     </TableCell>
-                    <TableCell> {profile.created_at} </TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-2">
                         <Button
@@ -201,18 +233,9 @@ export default function ProfilesList() {
             <AlertDialogAction
               variant="destructive"
               disabled={isDeleting}
-              onClick={async (e) => {
+              onClick={(e) => {
                 e.preventDefault();
-                if (!profileToDelete) return;
-                toast({ message: 'Excluindo perfil...' });
-                const res = await deleteMutation.mutateAsync(
-                  profileToDelete.id
-                );
-                if (res.success) {
-                  setProfileToDelete(null);
-                  queryClient.invalidateQueries({ queryKey: ['profiles'] });
-                }
-                toast({ type: res.type, message: res.message });
+                handleDeleteProfile();
               }}
             >
               {isDeleting ? 'Excluindo...' : 'Sim, excluir'}

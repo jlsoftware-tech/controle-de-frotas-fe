@@ -8,12 +8,12 @@ export type User = {
   profile: {
     id: number;
     name: string;
-  };
+  } | null;
   secretariat: {
     id: number;
     name: string;
     acronym: string;
-  };
+  } | null;
 };
 
 export type CreateUserPayload = {

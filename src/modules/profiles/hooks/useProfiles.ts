@@ -17,13 +17,9 @@ const fetchProfiles = async (params?: GetProfilesParams): Promise<Profile[]> => 
   return [];
 };
 
-export function useProfiles(params?: GetProfilesParams) {
+export function useProfiles(params?: GetProfilesParams, options?: { enabled?: boolean }) {
   const queryClient = useQueryClient();
 
-  // Normaliza os parâmetros ausentes/vazios para a mesma chave: assim uma
-  // tela que só precisa da lista completa (ex: select de outro formulário)
-  // reaproveita o cache de quem já buscou "sem filtro", em vez de disparar
-  // uma segunda requisição idêntica a /profiles.
   const query = useQuery({
     queryKey: [
       'profiles',
@@ -33,6 +29,7 @@ export function useProfiles(params?: GetProfilesParams) {
     ],
     queryFn: () => fetchProfiles(params),
     placeholderData: (previousData) => previousData,
+    enabled: options?.enabled ?? true,
   });
 
   const createMutation = useMutation({
@@ -41,8 +38,7 @@ export function useProfiles(params?: GetProfilesParams) {
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: number; data: UpdateProfilePayload }) =>
-      updateProfile(id, data),
+    mutationFn: ({ id, data }: { id: number; data: UpdateProfilePayload }) => updateProfile(id, data),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['profiles'] }),
   });
 

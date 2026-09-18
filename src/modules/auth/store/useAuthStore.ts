@@ -21,7 +21,6 @@ export const useAuthStore = create<AuthState>()(
       setToken: (token) => set({ token }),
       logout: () => {
         set({ user: null, token: null });
-        // Evita vazar o menu de uma sessão pro próximo login.
         useMenuStore.getState().clear();
       },
       isAuthenticated: () => Boolean(get().token),

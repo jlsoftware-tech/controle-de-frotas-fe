@@ -1,5 +1,3 @@
-import { useProfiles } from '@/modules/profiles/hooks/useProfiles';
-import { useSecretariats } from '@/modules/secretariats/hooks/useSecretariats';
 import { useUsers } from '@/modules/users/hooks/useUsers';
 import {
   AlertDialog,
@@ -21,7 +19,7 @@ import useDebounce from '@/shared/hooks/useDebounce';
 import useToastLoading from '@/shared/hooks/useToastLoading';
 import { useQueryClient } from '@tanstack/react-query';
 import { Edit2, Search, Trash2, UserCog, AlertTriangle } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { UserFormModal } from '../components/UserFormModal';
 import type { User } from '../types/user';
@@ -62,17 +60,6 @@ export default function UsersList() {
     search: debouncedSearch,
   });
 
-  const { data: profiles = [] } = useProfiles();
-  const { data: secretariats = [] } = useSecretariats();
-
-  const profileNameById = useMemo(
-    () => new Map(profiles.map((p) => [p.id, p.name])),
-    [profiles]
-  );
-  const secretariatNameById = useMemo(
-    () => new Map(secretariats.map((s) => [s.id, s.name])),
-    [secretariats]
-  );
 
   const isDeleting = deleteMutation.isPending;
   const queryClient = useQueryClient();
@@ -152,8 +139,8 @@ export default function UsersList() {
                   <TableRow key={user.id}>
                     <TableCell className="font-medium">{user.name}</TableCell>
                     <TableCell>{user.email}</TableCell>
-                    <TableCell>{profileNameById.get(user.profile_id) ?? '-'}</TableCell>
-                    <TableCell>{secretariatNameById.get(user.secretariat_id) ?? '-'}</TableCell>
+                    <TableCell>{user?.profile?.name ?? '-'}</TableCell>
+                    <TableCell>{user?.secretariat?.name ?? '-'}</TableCell>
                     <TableCell>{user.created_at}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-2">
