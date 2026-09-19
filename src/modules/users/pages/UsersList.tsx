@@ -18,11 +18,20 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import useDebounce from '@/shared/hooks/useDebounce';
 import useToastLoading from '@/shared/hooks/useToastLoading';
 import { useQueryClient } from '@tanstack/react-query';
-import { Edit2, Search, Trash2, UserCog, AlertTriangle } from 'lucide-react';
+import { AlertTriangle, ArrowDown, ArrowUp, ArrowUpDown, Edit2, Loader2, Search, Trash2, UserCog } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { UserFormModal } from '../components/UserFormModal';
-import type { User } from '../types/user';
+import type { GetUsersParams, User } from '../types/user';
+
+type SortableField = NonNullable<GetUsersParams['sort']>;
+
+const SORTABLE_COLUMNS: { field: SortableField; label: string }[] = [
+  { field: 'name', label: 'Nome' },
+  { field: 'email', label: 'E-mail' },
+  { field: 'profile_id', label: 'Perfil de Acesso' },
+  { field: 'created_at', label: 'Data de Criação' },
+];
 
 export default function UsersList() {
   const [page, setPage] = useState(1);
@@ -49,15 +58,29 @@ export default function UsersList() {
     debouncedSetSearch(searchValue);
   }, [searchValue]);
 
+  const [sort, setSort] = useState<SortableField>();
+  const [order, setOrder] = useState<'asc' | 'desc'>();
+
+  const handleSort = (field: SortableField) => {
+    if (sort === field) setOrder((prev) => (prev === 'asc' ? 'desc' : 'asc'));
+    else {
+      setSort(field);
+      setOrder('asc');
+    }
+  };
+
   const {
     data: usersResponse,
     isLoading,
+    isFetching,
     isPlaceholderData,
     deleteMutation,
   } = useUsers({
     page,
     per_page: perPage,
     search: debouncedSearch,
+    sort,
+    order,
   });
 
 
@@ -119,15 +142,30 @@ export default function UsersList() {
           <Table loading={isLoading}>
             <TableHeader>
               <TableRow>
-                <TableHead>Nome</TableHead>
-                <TableHead>E-mail</TableHead>
-                <TableHead>Perfil de Acesso</TableHead>
+                {SORTABLE_COLUMNS.map(({ field, label }) => (
+                  <TableHead key={field}>
+                    <button
+                      type="button"
+                      onClick={() => handleSort(field)}
+                      disabled={isFetching}
+                      className="flex items-center gap-1 hover:text-foreground disabled:cursor-not-allowed disabled:hover:text-inherit"
+                    >
+                      {label}
+                      {sort === field && isFetching ? (
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      ) : sort === field ? (
+                        order === 'asc' ? <ArrowUp className="h-3.5 w-3.5" /> : <ArrowDown className="h-3.5 w-3.5" />
+                      ) : (
+                        <ArrowUpDown className="h-3.5 w-3.5 text-muted-foreground/50" />
+                      )}
+                    </button>
+                  </TableHead>
+                ))}
                 <TableHead>Secretaria</TableHead>
-                <TableHead>Data de Criação</TableHead>
                 <TableHead className="w-24 text-right">Ações</TableHead>
               </TableRow>
             </TableHeader>
-            <TableBody>
+            <TableBody className={isFetching ? 'opacity-60 transition-opacity' : 'transition-opacity'}>
               {users.length === 0 && !isLoading ? (
                 <TableRow>
                   <TableCell colSpan={6} className="h-24 text-center">
@@ -140,8 +178,8 @@ export default function UsersList() {
                     <TableCell className="font-medium">{user.name}</TableCell>
                     <TableCell>{user.email}</TableCell>
                     <TableCell>{user?.profile?.name ?? '-'}</TableCell>
-                    <TableCell>{user?.secretariat?.name ?? '-'}</TableCell>
                     <TableCell>{user.created_at}</TableCell>
+                    <TableCell>{user?.secretariat?.name ?? '-'}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-2">
                         <Button

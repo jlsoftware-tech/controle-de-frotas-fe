@@ -25,7 +25,8 @@ export function UserFormModal({ open, onOpenChange, onSuccess, userToEdit }: Use
   const toast = useToastLoading();
   const { createMutation, updateMutation } = useUsers();
   const { data: profiles = [] } = useProfiles();
-  const { data: secretariats = [] } = useSecretariats();
+  const { data: secretariatsResponse } = useSecretariats({ page: 1, per_page: 100 });
+  const secretariats = secretariatsResponse?.items ?? [];
   const isEditing = !!userToEdit;
 
   const profileOptions = profiles.map((p) => ({ value: String(p.id), label: p.name }));
