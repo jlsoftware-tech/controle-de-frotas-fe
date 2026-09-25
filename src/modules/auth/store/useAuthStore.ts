@@ -1,5 +1,5 @@
 import type { User } from '@/modules/users/types/user';
-import { useMenuStore } from '@/shared/store/useMenuStore';
+import { queryClient } from '@/shared/lib/react-query';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
@@ -39,7 +39,7 @@ export const useAuthStore = create<AuthState>()(
       logout: () => {
         setSessionCookie(false);
         set({ user: null, token: null, remember: false });
-        useMenuStore.getState().clear();
+        queryClient.clear();
       },
       isAuthenticated: () => Boolean(get().token),
     }),

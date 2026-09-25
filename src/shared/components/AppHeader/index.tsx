@@ -2,7 +2,7 @@ import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbP
 import { Separator } from '@/shared/components/ui/separator';
 import { SidebarTrigger } from '@/shared/components/ui/sidebar';
 import { APP_ROUTES } from '@/shared/constants/urlRoutes';
-import { useMenuStore } from '@/shared/store/useMenuStore';
+import useNavigationMenu from '@/shared/hooks/useNavigationMenu';
 import type { NavigationResponse } from '@/shared/types/navigationMenuItem';
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
@@ -37,7 +37,7 @@ function buildBreadcrumbs(items: NavigationResponse, pathname: string): Breadcru
 
 export function AppHeader() {
   const location = useLocation();
-  const navigationItems = useMenuStore((s) => s.items);
+  const { items: navigationItems } = useNavigationMenu();
   const breadcrumbs = buildBreadcrumbs(navigationItems, location.pathname);
   const pageTitle = breadcrumbs[breadcrumbs.length - 1].title;
   const pageDescription = breadcrumbs[breadcrumbs.length - 1]?.description ?? '-';

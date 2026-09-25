@@ -22,12 +22,10 @@ import {
   SidebarMenuSubItem,
 } from '@/shared/components/ui/sidebar';
 import { APP_ROUTES } from '@/shared/constants/urlRoutes';
+import useNavigationMenu from '@/shared/hooks/useNavigationMenu';
 import { useTheme } from '@/shared/hooks/useTheme';
 import useToastLoading from '@/shared/hooks/useToastLoading';
-import { USER_PERMISSIONS_QUERY_KEY } from '@/shared/hooks/useUserPermissions';
-import { queryClient } from '@/shared/lib/react-query';
 import { cn } from '@/shared/lib/utils';
-import { useMenuStore } from '@/shared/store/useMenuStore';
 import { ChevronRight, LogOut, Moon, Sun } from 'lucide-react';
 import type { IconType } from 'react-icons';
 import * as FaIcons from 'react-icons/fa';
@@ -74,15 +72,13 @@ export function AppSidebar() {
   const { mutateAsync: logoutMutation } = useLogout();
   const toast = useToastLoading();
 
-  const navigationItems = useMenuStore((s) => s.items);
-  const isLoading = useMenuStore((s) => s.isLoading);
+  const { items: navigationItems, isLoading } = useNavigationMenu();
 
   const handleLogout = async () => {
     toast({ message: 'Saindo...' });
     const res = await logoutMutation();
     toast({ type: res.type, message: res.message });
     clearAuth();
-    queryClient.removeQueries({ queryKey: [USER_PERMISSIONS_QUERY_KEY] });
     navigate(APP_ROUTES.LOGIN);
   };
 
