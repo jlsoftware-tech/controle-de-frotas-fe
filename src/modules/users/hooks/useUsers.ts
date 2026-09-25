@@ -2,6 +2,7 @@ import type { GetUsersParams, UpdateUserPayload, User } from '@/modules/users/ty
 import { USER_PERMISSIONS_QUERY_KEY } from '@/shared/hooks/useUserPermissions';
 import type { PaginatedResponse } from '@/shared/types/responseApi';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'react-toastify';
 import { createUser, deleteUser, getUsers, updateUser } from '../services/users.service';
 
 const emptyListing: PaginatedResponse<User> = {
@@ -12,6 +13,7 @@ const emptyListing: PaginatedResponse<User> = {
 const fetchUsers = async (params: GetUsersParams): Promise<PaginatedResponse<User>> => {
   const response = await getUsers(params);
   if (response.success && response.data) return response.data;
+  if (!response.success) toast.error(response.message);
   return emptyListing;
 };
 

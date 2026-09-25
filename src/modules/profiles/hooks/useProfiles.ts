@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'react-toastify';
 import {
   createProfile,
   deleteProfile,
@@ -21,6 +22,7 @@ const emptyListing: PaginatedResponse<Profile> = {
 const fetchProfiles = async (params?: GetProfilesParams): Promise<PaginatedResponse<Profile>> => {
   const response = await getProfiles(params);
   if (response.success && response.data) return response.data;
+  if (!response.success) toast.error(response.message);
   return emptyListing;
 };
 

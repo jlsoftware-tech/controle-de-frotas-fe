@@ -1,6 +1,7 @@
 import type { GetSecretariatsParams, Secretariat, UpdateSecretariatPayload } from '@/modules/secretariats/types/secretariat';
 import type { PaginatedResponse } from '@/shared/types/responseApi';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'react-toastify';
 import { createSecretariat, deleteSecretariat, getSecretariats, updateSecretariat } from '../services/secretariats.service';
 
 const emptyListing: PaginatedResponse<Secretariat> = {
@@ -11,6 +12,7 @@ const emptyListing: PaginatedResponse<Secretariat> = {
 const fetchSecretariats = async (params: GetSecretariatsParams): Promise<PaginatedResponse<Secretariat>> => {
   const response = await getSecretariats(params);
   if (response.success && response.data) return response.data;
+  if (!response.success) toast.error(response.message);
   return emptyListing;
 };
 
