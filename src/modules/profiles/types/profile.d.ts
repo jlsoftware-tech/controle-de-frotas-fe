@@ -6,6 +6,24 @@ export interface Permission {
   updated_at?: string;
 }
 
+export type GetPermissionsParams = {
+  page?: number;
+  per_page?: number;
+  search?: string;
+};
+
+export type PermissionsPagination = {
+  numPerPage: number;
+  currPage: number;
+  totalEntries: number;
+  totalPages: number;
+};
+
+export type PermissionsListing = {
+  items: Permission[];
+  pagination: PermissionsPagination;
+};
+
 export interface Profile {
   id: number;
   name: string;
@@ -16,10 +34,11 @@ export interface Profile {
 }
 
 export type GetProfilesParams = {
+  page?: number;
+  per_page?: number;
   search?: string;
   sort?: 'name' | 'description' | 'created_at';
   order?: 'asc' | 'desc';
-  per_page?: number;
 };
 
 export type CreateProfilePayload = {
@@ -29,3 +48,15 @@ export type CreateProfilePayload = {
 };
 
 export type UpdateProfilePayload = Partial<CreateProfilePayload>;
+
+export type ProfilesPagination = {
+  numPerPage: number;
+  currPage: number;
+  totalEntries: number;
+  totalPages: number;
+};
+
+export type ProfilesListing = {
+  items: Profile[];
+  pagination: ProfilesPagination;
+};

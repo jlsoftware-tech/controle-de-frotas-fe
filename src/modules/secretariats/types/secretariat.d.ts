@@ -7,9 +7,23 @@ export interface Secretariat {
 }
 
 export type GetSecretariatsParams = {
+  page?: number;
+  per_page?: number;
   search?: string;
   sort?: 'name' | 'acronym' | 'created_at';
   order?: 'asc' | 'desc';
+};
+
+export type SecretariatsPagination = {
+  numPerPage: number;
+  currPage: number;
+  totalEntries: number;
+  totalPages: number;
+};
+
+export type SecretariatsListing = {
+  items: Secretariat[];
+  pagination: SecretariatsPagination;
 };
 
 export type CreateSecretariatPayload = {

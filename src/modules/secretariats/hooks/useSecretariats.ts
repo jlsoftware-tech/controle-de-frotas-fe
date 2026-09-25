@@ -7,28 +7,31 @@ import {
 } from '../services/secretariats.service';
 import type {
   GetSecretariatsParams,
-  Secretariat,
+  SecretariatsListing,
   UpdateSecretariatPayload,
 } from '../types/secretariat';
 
+const emptyListing: SecretariatsListing = {
+  items: [],
+  pagination: { numPerPage: 10, currPage: 1, totalEntries: 0, totalPages: 0 },
+};
+
 const fetchSecretariats = async (
   params?: GetSecretariatsParams
-): Promise<Secretariat[]> => {
+): Promise<SecretariatsListing> => {
   const response = await getSecretariats(params);
   if (response.success && response.data) return response.data;
-  return [];
+  return emptyListing;
 };
 
 export function useSecretariats(params?: GetSecretariatsParams) {
   const queryClient = useQueryClient();
 
-  // Mesmo padrão do useProfiles: normaliza os parâmetros ausentes/vazios
-  // pra mesma chave, assim quem só quer a lista completa (ex: select do
-  // UserFormModal) reaproveita o cache de quem já buscou "sem filtro" na
-  // SecretariatsList, em vez de disparar uma segunda requisição idêntica.
   const query = useQuery({
     queryKey: [
       'secretariats',
+      params?.page || '',
+      params?.per_page || '',
       params?.search || '',
       params?.sort || '',
       params?.order || '',

@@ -10,7 +10,7 @@ export const profileSchema = z.object({
     .max(255, { message: 'A descrição deve ter no máximo 255 caracteres' })
     .optional()
     .or(z.literal('')),
-  permissions: z.array(z.number()).default([]),
+  permissions: z.array(z.number()),
 });
 
 export type ProfileFormValues = z.infer<typeof profileSchema>;

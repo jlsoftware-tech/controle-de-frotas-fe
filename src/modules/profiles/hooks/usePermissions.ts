@@ -3,8 +3,8 @@ import { getPermissions } from '../services/permissions.service';
 import type { Permission } from '../types/profile';
 
 const fetchPermissions = async (): Promise<Permission[]> => {
-  const response = await getPermissions();
-  if (response.success && response.data) return response.data;
+  const response = await getPermissions({ per_page: 100 });
+  if (response.success && response.data) return response.data.items;
   return [];
 };
 

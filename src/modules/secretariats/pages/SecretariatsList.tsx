@@ -14,11 +14,17 @@ import {
   Card,
   CardAction,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from '@/shared/components/ui/card';
 import { Input } from '@/shared/components/ui/input';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/shared/components/ui/pagination';
 import {
   Table,
   TableBody,
@@ -32,40 +38,53 @@ import useToastLoading from '@/shared/hooks/useToastLoading';
 import { useQueryClient } from '@tanstack/react-query';
 import { AlertTriangle, Edit2, Landmark, Search, Trash2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { SecretariatFormModal } from '../components/SecretariatFormModal';
 import { useSecretariats } from '../hooks/useSecretariats';
 import type { Secretariat } from '../types/secretariat';
 
 export default function SecretariatsList() {
+  const [page, setPage] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingSecretariat, setEditingSecretariat] = useState<Secretariat | null>(null);
   const [secretariatToDelete, setSecretariatToDelete] = useState<Secretariat | null>(null);
 
-  const { register, watch, setValue } = useForm({
+  const { register, control, setValue } = useForm({
     defaultValues: { search: '' },
   });
 
-  const searchValue = watch('search');
+  const searchValue = useWatch({ control, name: 'search' });
   const [debouncedSearch, setDebouncedSearch] = useState('');
+  const perPage = 10;
 
   const debouncedSetSearch = useDebounce((val: string) => {
     setDebouncedSearch(val);
+    setPage(1);
   }, 500);
 
   useEffect(() => {
     debouncedSetSearch(searchValue);
-  }, [searchValue]);
+  }, [searchValue, debouncedSetSearch]);
 
   const {
-    data: secretariats = [],
+    data: secretariatsResponse,
     isLoading,
+    isPlaceholderData,
     deleteMutation,
-  } = useSecretariats({ search: debouncedSearch });
+  } = useSecretariats({ page, per_page: perPage, search: debouncedSearch });
 
   const isDeleting = deleteMutation.isPending;
   const queryClient = useQueryClient();
   const toast = useToastLoading();
+
+  const pagination = secretariatsResponse?.pagination;
+  const totalPages = pagination?.totalPages || 0;
+  const totalEntries = pagination?.totalEntries || 0;
+  const secretariats = secretariatsResponse?.items || [];
+
+  const handlePreviousPage = () => setPage((old) => Math.max(old - 1, 1));
+  const handleNextPage = () =>
+    !isPlaceholderData && page < totalPages && setPage((old) => old + 1);
 
   return (
     <div className="flex flex-col gap-4">
@@ -95,9 +114,6 @@ export default function SecretariatsList() {
       <Card>
         <CardHeader>
           <CardTitle>Secretarias</CardTitle>
-          <CardDescription>
-            Gerencie as secretarias cadastradas no sistema.
-          </CardDescription>
           <CardAction>
             <Button
               onClick={() => {
@@ -164,6 +180,60 @@ export default function SecretariatsList() {
               )}
             </TableBody>
           </Table>
+
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-4">
+            <div className="text-sm text-muted-foreground text-center sm:text-left">
+              {secretariatsResponse ? (
+                <span>
+                  Mostrando {totalEntries === 0 ? 0 : (page - 1) * perPage + 1} a{' '}
+                  {Math.min(page * perPage, totalEntries)} de{' '}
+                  {totalEntries} secretarias
+                </span>
+              ) : (
+                <span>Carregando informações...</span>
+              )}
+            </div>
+            <Pagination className="mx-0 w-auto">
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      if (page > 1) handlePreviousPage();
+                    }}
+                    className={
+                      page === 1
+                        ? 'pointer-events-none opacity-50'
+                        : 'cursor-pointer'
+                    }
+                    text="Anterior"
+                  />
+                </PaginationItem>
+                <PaginationItem>
+                  <span className="text-sm font-medium px-4">
+                    Página {page} de {totalPages || 1}
+                  </span>
+                </PaginationItem>
+                <PaginationItem>
+                  <PaginationNext
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      if (!isPlaceholderData && page < totalPages)
+                        handleNextPage();
+                    }}
+                    className={
+                      isPlaceholderData || page >= totalPages
+                        ? 'pointer-events-none opacity-50'
+                        : 'cursor-pointer'
+                    }
+                    text="Próximo"
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          </div>
         </CardContent>
       </Card>
 

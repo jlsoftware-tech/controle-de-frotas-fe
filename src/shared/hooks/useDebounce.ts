@@ -1,15 +1,29 @@
-import { useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 
-export default function useDebounce(fn: Function, delay: number) {
-  const timeoutRef: any = useRef<ReturnType<typeof setTimeout> | null>(null);
+export default function useDebounce<Args extends unknown[]>(
+  fn: (...args: Args) => void,
+  delay: number
+) {
+  const fnRef = useRef(fn);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  function debounceFn(...args: any[]) {
-    if (timeoutRef == null) return;
-    if (timeoutRef.current) window.clearTimeout(timeoutRef.current);
-    timeoutRef.current = window.setTimeout(() => {
-      fn(...args);
-    }, delay);
-  }
+  useEffect(() => {
+    fnRef.current = fn;
+  }, [fn]);
 
-  return debounceFn;
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) window.clearTimeout(timeoutRef.current);
+    };
+  }, []);
+
+  return useCallback(
+    (...args: Args) => {
+      if (timeoutRef.current) window.clearTimeout(timeoutRef.current);
+      timeoutRef.current = window.setTimeout(() => {
+        fnRef.current(...args);
+      }, delay);
+    },
+    [delay]
+  );
 }

@@ -11,7 +11,7 @@ import {
   AlertDialogTitle,
 } from '@/shared/components/ui/alert-dialog';
 import { Button } from '@/shared/components/ui/button';
-import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/components/ui/card';
+import { Card, CardAction, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
 import { Input } from '@/shared/components/ui/input';
 import { Pagination, PaginationContent, PaginationItem, PaginationNext, PaginationPrevious } from '@/shared/components/ui/pagination';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/shared/components/ui/table';
@@ -20,7 +20,7 @@ import useToastLoading from '@/shared/hooks/useToastLoading';
 import { useQueryClient } from '@tanstack/react-query';
 import { Edit2, Search, Trash2, UserCog, AlertTriangle } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { UserFormModal } from '../components/UserFormModal';
 import type { User } from '../types/user';
 
@@ -30,13 +30,13 @@ export default function UsersList() {
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
 
-  const { register, watch, setValue } = useForm({
+  const { register, control, setValue } = useForm({
     defaultValues: {
       search: '',
     },
   });
 
-  const searchValue = watch('search');
+  const searchValue = useWatch({ control, name: 'search' });
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const perPage = 10;
 
@@ -47,7 +47,7 @@ export default function UsersList() {
 
   useEffect(() => {
     debouncedSetSearch(searchValue);
-  }, [searchValue]);
+  }, [searchValue, debouncedSetSearch]);
 
   const {
     data: usersResponse,
@@ -101,7 +101,6 @@ export default function UsersList() {
       <Card>
         <CardHeader>
           <CardTitle>Lista de Usuários</CardTitle>
-          <CardDescription>Gerencie os usuários do sistema.</CardDescription>
           <CardAction>
             <Button
               onClick={() => {

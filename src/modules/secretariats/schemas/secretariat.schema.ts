@@ -8,7 +8,7 @@ export const secretariatSchema = z.object({
   acronym: z
     .string()
     .min(2, { message: 'A sigla deve ter pelo menos 2 caracteres' })
-    .max(20, { message: 'A sigla deve ter no máximo 20 caracteres' }),
+    .max(16, { message: 'A sigla deve ter no máximo 16 caracteres' }),
 });
 
 export type SecretariatFormValues = z.infer<typeof secretariatSchema>;

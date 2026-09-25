@@ -73,6 +73,7 @@ export function ProfileFormModal({ open, onOpenChange, onSuccess, profileToEdit 
   const { createMutation, updateMutation } = useProfiles(undefined, { enabled: false });
   const { data: permissions = [], isLoading: isLoadingPermissions } = usePermissions();
   const [permissionSearch, setPermissionSearch] = useState('');
+  const [prevOpen, setPrevOpen] = useState(open);
   const isEditing = !!profileToEdit;
   const isSubmittingMutation = createMutation.isPending || updateMutation.isPending;
 
@@ -91,6 +92,11 @@ export function ProfileFormModal({ open, onOpenChange, onSuccess, profileToEdit 
     },
   });
 
+  if (open !== prevOpen) {
+    setPrevOpen(open);
+    if (open) setPermissionSearch('');
+  }
+
   useEffect(() => {
     if (!open) return;
 
@@ -103,7 +109,6 @@ export function ProfileFormModal({ open, onOpenChange, onSuccess, profileToEdit 
     } else {
       reset({ name: '', description: '', permissions: [] });
     }
-    setPermissionSearch('');
   }, [profileToEdit, open, reset]);
 
   const groupedPermissions = groupPermissionsByModule(permissions);

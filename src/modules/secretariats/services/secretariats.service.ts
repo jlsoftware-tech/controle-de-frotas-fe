@@ -3,17 +3,20 @@ import type {
   CreateSecretariatPayload,
   GetSecretariatsParams,
   Secretariat,
+  SecretariatsListing,
   UpdateSecretariatPayload,
 } from '../types/secretariat';
 
 export function getSecretariats(params?: GetSecretariatsParams) {
   const query = new URLSearchParams();
+  if (params?.page) query.append('page', params.page.toString());
+  if (params?.per_page) query.append('per_page', params.per_page.toString());
   if (params?.search) query.append('search', params.search);
   if (params?.sort) query.append('sort', params.sort);
   if (params?.order) query.append('order', params.order);
 
   const qs = query.toString();
-  return getRequest<Secretariat[]>(`/secretariats${qs ? `?${qs}` : ''}`);
+  return getRequest<SecretariatsListing>(`/secretariats${qs ? `?${qs}` : ''}`);
 }
 
 export function createSecretariat(data: CreateSecretariatPayload) {

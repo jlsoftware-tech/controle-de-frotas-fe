@@ -24,8 +24,10 @@ export function UserFormModal({ open, onOpenChange, onSuccess, userToEdit }: Use
   const [portalContainer, setPortalContainer] = useState<HTMLFormElement | null>(null);
   const toast = useToastLoading();
   const { createMutation, updateMutation } = useUsers();
-  const { data: profiles = [] } = useProfiles();
-  const { data: secretariats = [] } = useSecretariats();
+  const { data: profilesResponse } = useProfiles();
+  const profiles = profilesResponse?.items ?? [];
+  const { data: secretariatsResponse } = useSecretariats();
+  const secretariats = secretariatsResponse?.items ?? [];
   const isEditing = !!userToEdit;
 
   const profileOptions = profiles.map((p) => ({ value: String(p.id), label: p.name }));
@@ -57,8 +59,8 @@ export function UserFormModal({ open, onOpenChange, onSuccess, userToEdit }: Use
           email: userToEdit.email,
           password: '',
           confirmPassword: '',
-          profile_id: String(userToEdit.profile_id),
-          secretariat_id: String(userToEdit.secretariat_id),
+          profile_id: String(userToEdit.profile?.id),
+          secretariat_id: String(userToEdit.secretariat?.id),
         });
       } else {
         reset({

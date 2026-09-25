@@ -10,15 +10,16 @@ import {
   AlertDialogTitle,
 } from '@/shared/components/ui/alert-dialog';
 import { Button } from '@/shared/components/ui/button';
-import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/components/ui/card';
+import { Card, CardAction, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
 import { Input } from '@/shared/components/ui/input';
+import { Pagination, PaginationContent, PaginationItem, PaginationNext, PaginationPrevious } from '@/shared/components/ui/pagination';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/shared/components/ui/table';
 import useDebounce from '@/shared/hooks/useDebounce';
 import useToastLoading from '@/shared/hooks/useToastLoading';
 import { useQueryClient } from '@tanstack/react-query';
 import { AlertTriangle, ArrowDown, ArrowUp, ArrowUpDown, Edit2, Loader2, Search, ShieldPlus, Trash2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { ProfileFormModal } from '../components/ProfileFormModal';
 import { useProfiles } from '../hooks/useProfiles';
 import type { GetProfilesParams, Profile } from '../types/profile';
@@ -32,27 +33,33 @@ const SORTABLE_COLUMNS: { field: SortableField; label: string }[] = [
 ];
 
 export default function ProfilesList() {
+  const [page, setPage] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProfile, setEditingProfile] = useState<Profile | null>(null);
   const [profileToDelete, setProfileToDelete] = useState<Profile | null>(null);
 
-  const { register, watch, setValue } = useForm({
+  const { register, control, setValue } = useForm({
     defaultValues: { search: '' },
   });
 
-  const searchValue = watch('search');
+  const searchValue = useWatch({ control, name: 'search' });
   const [debouncedSearch, setDebouncedSearch] = useState('');
+  const perPage = 10;
 
-  const debouncedSetSearch = useDebounce((val: string) => { setDebouncedSearch(val); }, 500);
+  const debouncedSetSearch = useDebounce((val: string) => {
+    setDebouncedSearch(val);
+    setPage(1);
+  }, 500);
 
   useEffect(() => {
     debouncedSetSearch(searchValue);
-  }, [searchValue]);
+  }, [searchValue, debouncedSetSearch]);
 
   const [sort, setSort] = useState<SortableField>();
   const [order, setOrder] = useState<'asc' | 'desc'>();
 
   const handleSort = (field: SortableField) => {
+    setPage(1);
     if (sort === field) setOrder((prev) => (prev === 'asc' ? 'desc' : 'asc'));
     else {
       setSort(field);
@@ -61,11 +68,21 @@ export default function ProfilesList() {
   };
 
   const {
-    data: profiles = [],
+    data: profilesResponse,
     isLoading,
     isFetching,
+    isPlaceholderData,
     deleteMutation,
-  } = useProfiles({ search: debouncedSearch, sort, order });
+  } = useProfiles({ page, per_page: perPage, search: debouncedSearch, sort, order });
+
+  const pagination = profilesResponse?.pagination;
+  const totalPages = pagination?.totalPages || 0;
+  const totalEntries = pagination?.totalEntries || 0;
+  const profiles = profilesResponse?.items || [];
+
+  const handlePreviousPage = () => setPage((old) => Math.max(old - 1, 1));
+  const handleNextPage = () =>
+    !isPlaceholderData && page < totalPages && setPage((old) => old + 1);
 
   const isDeleting = deleteMutation.isPending;
   const queryClient = useQueryClient();
@@ -110,9 +127,6 @@ export default function ProfilesList() {
       <Card>
         <CardHeader>
           <CardTitle>Perfis de Acesso</CardTitle>
-          <CardDescription>
-            Gerencie os perfis e permissões do sistema.
-          </CardDescription>
           <CardAction>
             <Button
               onClick={() => {
@@ -198,6 +212,60 @@ export default function ProfilesList() {
               )}
             </TableBody>
           </Table>
+
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-4">
+            <div className="text-sm text-muted-foreground text-center sm:text-left">
+              {profilesResponse ? (
+                <span>
+                  Mostrando {totalEntries === 0 ? 0 : (page - 1) * perPage + 1} a{' '}
+                  {Math.min(page * perPage, totalEntries)} de{' '}
+                  {totalEntries} perfis
+                </span>
+              ) : (
+                <span>Carregando informações...</span>
+              )}
+            </div>
+            <Pagination className="mx-0 w-auto">
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      if (page > 1) handlePreviousPage();
+                    }}
+                    className={
+                      page === 1
+                        ? 'pointer-events-none opacity-50'
+                        : 'cursor-pointer'
+                    }
+                    text="Anterior"
+                  />
+                </PaginationItem>
+                <PaginationItem>
+                  <span className="text-sm font-medium px-4">
+                    Página {page} de {totalPages || 1}
+                  </span>
+                </PaginationItem>
+                <PaginationItem>
+                  <PaginationNext
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      if (!isPlaceholderData && page < totalPages)
+                        handleNextPage();
+                    }}
+                    className={
+                      isPlaceholderData || page >= totalPages
+                        ? 'pointer-events-none opacity-50'
+                        : 'cursor-pointer'
+                    }
+                    text="Próximo"
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          </div>
         </CardContent>
       </Card>
 

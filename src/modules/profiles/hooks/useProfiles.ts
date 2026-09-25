@@ -7,14 +7,19 @@ import {
 } from '../services/profiles.service';
 import type {
   GetProfilesParams,
-  Profile,
+  ProfilesListing,
   UpdateProfilePayload,
 } from '../types/profile';
 
-const fetchProfiles = async (params?: GetProfilesParams): Promise<Profile[]> => {
+const emptyListing: ProfilesListing = {
+  items: [],
+  pagination: { numPerPage: 10, currPage: 1, totalEntries: 0, totalPages: 0 },
+};
+
+const fetchProfiles = async (params?: GetProfilesParams): Promise<ProfilesListing> => {
   const response = await getProfiles(params);
   if (response.success && response.data) return response.data;
-  return [];
+  return emptyListing;
 };
 
 export function useProfiles(params?: GetProfilesParams, options?: { enabled?: boolean }) {
@@ -23,6 +28,8 @@ export function useProfiles(params?: GetProfilesParams, options?: { enabled?: bo
   const query = useQuery({
     queryKey: [
       'profiles',
+      params?.page || '',
+      params?.per_page || '',
       params?.search || '',
       params?.sort || '',
       params?.order || '',

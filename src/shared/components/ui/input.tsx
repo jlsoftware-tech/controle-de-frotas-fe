@@ -317,11 +317,11 @@ function InputSelect<T extends FieldValues>({
               ) ??
               null
             }
-            onValueChange={(item: any) => {
+            onValueChange={(item) => {
               field.onChange(item?.value || '');
               onSelectOption?.(item ?? null);
             }}
-            onInputValueChange={(value: string, eventDetails: any) => {
+            onInputValueChange={(value, eventDetails) => {
               if (
                 eventDetails.reason === 'input-change' ||
                 eventDetails.reason === 'input-clear'
@@ -329,7 +329,7 @@ function InputSelect<T extends FieldValues>({
                 onSearchChange?.(value);
               }
             }}
-            itemToStringValue={(item: any) => item?.label || ''}
+            itemToStringValue={(item) => item?.label || ''}
           >
             <ComboboxInput
               disabled={props.disabled}
@@ -342,7 +342,7 @@ function InputSelect<T extends FieldValues>({
                 {pagination?.loading ? 'Carregando...' : emptyMessage}
               </ComboboxEmpty>
               <ComboboxList>
-                {(item: any) => (
+                {(item) => (
                   <ComboboxItem key={item.value} value={item}>
                     {item.label}
                   </ComboboxItem>
