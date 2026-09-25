@@ -123,7 +123,7 @@ export function ProfileFormModal({ open, onOpenChange, onSuccess, profileToEdit 
         if (moduleLabel.includes(normalizedSearch)) return [module, modulePermissions] as const;
 
         const matchingPermissions = modulePermissions.filter((permission) =>
-          (ACTION_LABELS[permission.name] ?? permission.name).toLowerCase().includes(normalizedSearch)
+          (ACTION_LABELS[permission.action] ?? permission.action).toLowerCase().includes(normalizedSearch)
         );
         return [module, matchingPermissions] as const;
       })
@@ -295,7 +295,7 @@ export function ProfileFormModal({ open, onOpenChange, onSuccess, profileToEdit 
                                 <div className="flex flex-wrap gap-2 pl-9">
                                   {modulePermissions.map((permission) => {
                                     const checked = field.value.includes(permission.id);
-                                    const ActionIcon = ACTION_ICONS[permission.name];
+                                    const ActionIcon = ACTION_ICONS[permission.action];
                                     return (
                                       <button
                                         key={permission.id}
@@ -316,7 +316,7 @@ export function ProfileFormModal({ open, onOpenChange, onSuccess, profileToEdit 
                                         )}
                                       >
                                         {ActionIcon && <ActionIcon className="h-3.5 w-3.5" />}
-                                        {ACTION_LABELS[permission.name] ?? permission.name}
+                                        {ACTION_LABELS[permission.action] ?? permission.action}
                                       </button>
                                     );
                                   })}

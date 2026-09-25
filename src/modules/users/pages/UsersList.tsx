@@ -11,14 +11,44 @@ import {
   AlertDialogTitle,
 } from '@/shared/components/ui/alert-dialog';
 import { Button } from '@/shared/components/ui/button';
-import { Card, CardAction, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '@/shared/components/ui/card';
 import { Input } from '@/shared/components/ui/input';
-import { Pagination, PaginationContent, PaginationItem, PaginationNext, PaginationPrevious } from '@/shared/components/ui/pagination';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/shared/components/ui/table';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/shared/components/ui/pagination';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/shared/components/ui/table';
 import useDebounce from '@/shared/hooks/useDebounce';
 import useToastLoading from '@/shared/hooks/useToastLoading';
+import useUserPermissions from '@/shared/hooks/useUserPermissions';
 import { useQueryClient } from '@tanstack/react-query';
-import { AlertTriangle, ArrowDown, ArrowUp, ArrowUpDown, Edit2, Loader2, Search, Trash2, UserCog } from 'lucide-react';
+import {
+  AlertTriangle,
+  ArrowDown,
+  ArrowUp,
+  ArrowUpDown,
+  Edit2,
+  Loader2,
+  Search,
+  Trash2,
+  UserCog,
+} from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { UserFormModal } from '../components/UserFormModal';
@@ -83,10 +113,13 @@ export default function UsersList() {
     order,
   });
 
-
   const isDeleting = deleteMutation.isPending;
   const queryClient = useQueryClient();
   const toast = useToastLoading();
+  const { can } = useUserPermissions('users');
+  const canUpdate = can('update');
+  const canDelete = can('delete');
+  const hasActions = canUpdate || canDelete;
 
   const pagination = usersResponse?.pagination;
   const totalPages = pagination?.totalPages || 0;
@@ -94,7 +127,8 @@ export default function UsersList() {
   const users = usersResponse?.items || [];
 
   const handlePreviousPage = () => setPage((old) => Math.max(old - 1, 1));
-  const handleNextPage = () => !isPlaceholderData && page < totalPages && setPage((old) => old + 1);
+  const handleNextPage = () =>
+    !isPlaceholderData && page < totalPages && setPage((old) => old + 1);
 
   return (
     <div className="flex flex-col gap-4">
@@ -124,18 +158,20 @@ export default function UsersList() {
       <Card>
         <CardHeader>
           <CardTitle>Lista de Usuários</CardTitle>
-          <CardAction>
-            <Button
-              onClick={() => {
-                setEditingUser(null);
-                setIsModalOpen(true);
-              }}
-              className="px-3 sm:px-4"
-            >
-              <UserCog className="h-4 w-4 sm:mr-2" />
-              <span className="hidden sm:inline">Novo Usuário</span>
-            </Button>
-          </CardAction>
+          {can('create') && (
+            <CardAction>
+              <Button
+                onClick={() => {
+                  setEditingUser(null);
+                  setIsModalOpen(true);
+                }}
+                className="px-3 sm:px-4"
+              >
+                <UserCog className="h-4 w-4 sm:mr-2" />
+                <span className="hidden sm:inline">Novo Usuário</span>
+              </Button>
+            </CardAction>
+          )}
         </CardHeader>
         <CardContent>
           <Table loading={isLoading}>
@@ -153,7 +189,11 @@ export default function UsersList() {
                       {sort === field && isFetching ? (
                         <Loader2 className="h-3.5 w-3.5 animate-spin" />
                       ) : sort === field ? (
-                        order === 'asc' ? <ArrowUp className="h-3.5 w-3.5" /> : <ArrowDown className="h-3.5 w-3.5" />
+                        order === 'asc' ? (
+                          <ArrowUp className="h-3.5 w-3.5" />
+                        ) : (
+                          <ArrowDown className="h-3.5 w-3.5" />
+                        )
                       ) : (
                         <ArrowUpDown className="h-3.5 w-3.5 text-muted-foreground/50" />
                       )}
@@ -161,13 +201,24 @@ export default function UsersList() {
                   </TableHead>
                 ))}
                 <TableHead>Secretaria</TableHead>
-                <TableHead className="w-24 text-right">Ações</TableHead>
+                {hasActions && (
+                  <TableHead className="w-24 text-right">Ações</TableHead>
+                )}
               </TableRow>
             </TableHeader>
-            <TableBody className={isFetching ? 'opacity-60 transition-opacity' : 'transition-opacity'}>
+            <TableBody
+              className={
+                isFetching
+                  ? 'opacity-60 transition-opacity'
+                  : 'transition-opacity'
+              }
+            >
               {users.length === 0 && !isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="h-24 text-center">
+                  <TableCell
+                    colSpan={hasActions ? 6 : 5}
+                    className="h-24 text-center"
+                  >
                     Nenhum usuário encontrado.
                   </TableCell>
                 </TableRow>
@@ -179,27 +230,33 @@ export default function UsersList() {
                     <TableCell>{user?.profile?.name ?? '-'}</TableCell>
                     <TableCell>{user.created_at}</TableCell>
                     <TableCell>{user?.secretariat?.name ?? '-'}</TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        <Button
-                          variant="ghost"
-                          size="icon-xs"
-                          onClick={() => {
-                            setEditingUser(user);
-                            setIsModalOpen(true);
-                          }}
-                        >
-                          <Edit2 className="h-4 w-4 text-muted-foreground" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon-xs"
-                          onClick={() => setUserToDelete(user)}
-                        >
-                          <Trash2 className="h-4 w-4 text-destructive" />
-                        </Button>
-                      </div>
-                    </TableCell>
+                    {hasActions && (
+                      <TableCell className="text-right">
+                        <div className="flex items-center justify-end gap-2">
+                          {canUpdate && (
+                            <Button
+                              variant="ghost"
+                              size="icon-xs"
+                              onClick={() => {
+                                setEditingUser(user);
+                                setIsModalOpen(true);
+                              }}
+                            >
+                              <Edit2 className="h-4 w-4 text-muted-foreground" />
+                            </Button>
+                          )}
+                          {canDelete && (
+                            <Button
+                              variant="ghost"
+                              size="icon-xs"
+                              onClick={() => setUserToDelete(user)}
+                            >
+                              <Trash2 className="h-4 w-4 text-destructive" />
+                            </Button>
+                          )}
+                        </div>
+                      </TableCell>
+                    )}
                   </TableRow>
                 ))
               )}
@@ -211,9 +268,9 @@ export default function UsersList() {
             <div className="text-sm text-muted-foreground text-center sm:text-left">
               {usersResponse ? (
                 <span>
-                  Mostrando {totalEntries === 0 ? 0 : (page - 1) * perPage + 1} a{' '}
-                  {Math.min(page * perPage, totalEntries)} de{' '}
-                  {totalEntries} usuários
+                  Mostrando {totalEntries === 0 ? 0 : (page - 1) * perPage + 1}{' '}
+                  a {Math.min(page * perPage, totalEntries)} de {totalEntries}{' '}
+                  usuários
                 </span>
               ) : (
                 <span>Carregando informações...</span>
@@ -270,7 +327,9 @@ export default function UsersList() {
           if (!val) setEditingUser(null);
         }}
         userToEdit={editingUser}
-        onSuccess={() => { queryClient.invalidateQueries({ queryKey: ['users'] }); }}
+        onSuccess={() => {
+          queryClient.invalidateQueries({ queryKey: ['users'] });
+        }}
       />
 
       <AlertDialog

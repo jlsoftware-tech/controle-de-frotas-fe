@@ -10,14 +10,44 @@ import {
   AlertDialogTitle,
 } from '@/shared/components/ui/alert-dialog';
 import { Button } from '@/shared/components/ui/button';
-import { Card, CardAction, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '@/shared/components/ui/card';
 import { Input } from '@/shared/components/ui/input';
-import { Pagination, PaginationContent, PaginationItem, PaginationNext, PaginationPrevious } from '@/shared/components/ui/pagination';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/shared/components/ui/table';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/shared/components/ui/pagination';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/shared/components/ui/table';
 import useDebounce from '@/shared/hooks/useDebounce';
 import useToastLoading from '@/shared/hooks/useToastLoading';
+import useUserPermissions from '@/shared/hooks/useUserPermissions';
 import { useQueryClient } from '@tanstack/react-query';
-import { AlertTriangle, ArrowDown, ArrowUp, ArrowUpDown, Edit2, Loader2, Search, ShieldPlus, Trash2 } from 'lucide-react';
+import {
+  AlertTriangle,
+  ArrowDown,
+  ArrowUp,
+  ArrowUpDown,
+  Edit2,
+  Loader2,
+  Search,
+  ShieldPlus,
+  Trash2,
+} from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { ProfileFormModal } from '../components/ProfileFormModal';
@@ -73,7 +103,13 @@ export default function ProfilesList() {
     isFetching,
     isPlaceholderData,
     deleteMutation,
-  } = useProfiles({ page, per_page: perPage, search: debouncedSearch, sort, order });
+  } = useProfiles({
+    page,
+    per_page: perPage,
+    search: debouncedSearch,
+    sort,
+    order,
+  });
 
   const pagination = profilesResponse?.pagination;
   const totalPages = pagination?.totalPages || 0;
@@ -87,6 +123,10 @@ export default function ProfilesList() {
   const isDeleting = deleteMutation.isPending;
   const queryClient = useQueryClient();
   const toast = useToastLoading();
+  const { can } = useUserPermissions('profiles');
+  const canUpdate = can('update');
+  const canDelete = can('delete');
+  const hasActions = canUpdate || canDelete;
 
   const handleDeleteProfile = async () => {
     if (!profileToDelete) return;
@@ -127,18 +167,20 @@ export default function ProfilesList() {
       <Card>
         <CardHeader>
           <CardTitle>Perfis de Acesso</CardTitle>
-          <CardAction>
-            <Button
-              onClick={() => {
-                setEditingProfile(null);
-                setIsModalOpen(true);
-              }}
-              className="px-3 sm:px-4"
-            >
-              <ShieldPlus className="h-4 w-4 sm:mr-2" />
-              <span className="hidden sm:inline">Novo Perfil</span>
-            </Button>
-          </CardAction>
+          {can('create') && (
+            <CardAction>
+              <Button
+                onClick={() => {
+                  setEditingProfile(null);
+                  setIsModalOpen(true);
+                }}
+                className="px-3 sm:px-4"
+              >
+                <ShieldPlus className="h-4 w-4 sm:mr-2" />
+                <span className="hidden sm:inline">Novo Perfil</span>
+              </Button>
+            </CardAction>
+          )}
         </CardHeader>
         <CardContent>
           <Table loading={isLoading}>
@@ -156,20 +198,36 @@ export default function ProfilesList() {
                       {sort === field && isFetching ? (
                         <Loader2 className="h-3.5 w-3.5 animate-spin" />
                       ) : sort === field ? (
-                        order === 'asc' ? <ArrowUp className="h-3.5 w-3.5" />  : <ArrowDown className="h-3.5 w-3.5" />
-                      ) :  <ArrowUpDown className="h-3.5 w-3.5 text-muted-foreground/50" />
-                       }
+                        order === 'asc' ? (
+                          <ArrowUp className="h-3.5 w-3.5" />
+                        ) : (
+                          <ArrowDown className="h-3.5 w-3.5" />
+                        )
+                      ) : (
+                        <ArrowUpDown className="h-3.5 w-3.5 text-muted-foreground/50" />
+                      )}
                     </button>
                   </TableHead>
                 ))}
                 <TableHead>Permissões</TableHead>
-                <TableHead className="w-24 text-right">Ações</TableHead>
+                {hasActions && (
+                  <TableHead className="w-24 text-right">Ações</TableHead>
+                )}
               </TableRow>
             </TableHeader>
-            <TableBody className={isFetching ? 'opacity-60 transition-opacity' : 'transition-opacity'}>
+            <TableBody
+              className={
+                isFetching
+                  ? 'opacity-60 transition-opacity'
+                  : 'transition-opacity'
+              }
+            >
               {profiles.length === 0 && !isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="h-24 text-center">
+                  <TableCell
+                    colSpan={hasActions ? 5 : 4}
+                    className="h-24 text-center"
+                  >
                     Nenhum perfil encontrado.
                   </TableCell>
                 </TableRow>
@@ -186,27 +244,33 @@ export default function ProfilesList() {
                     <TableCell>
                       {profile.permissions?.length ?? 0} permissões
                     </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        <Button
-                          variant="ghost"
-                          size="icon-xs"
-                          onClick={() => {
-                            setEditingProfile(profile);
-                            setIsModalOpen(true);
-                          }}
-                        >
-                          <Edit2 className="h-4 w-4 text-muted-foreground" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon-xs"
-                          onClick={() => setProfileToDelete(profile)}
-                        >
-                          <Trash2 className="h-4 w-4 text-destructive" />
-                        </Button>
-                      </div>
-                    </TableCell>
+                    {hasActions && (
+                      <TableCell className="text-right">
+                        <div className="flex items-center justify-end gap-2">
+                          {canUpdate && (
+                            <Button
+                              variant="ghost"
+                              size="icon-xs"
+                              onClick={() => {
+                                setEditingProfile(profile);
+                                setIsModalOpen(true);
+                              }}
+                            >
+                              <Edit2 className="h-4 w-4 text-muted-foreground" />
+                            </Button>
+                          )}
+                          {canDelete && (
+                            <Button
+                              variant="ghost"
+                              size="icon-xs"
+                              onClick={() => setProfileToDelete(profile)}
+                            >
+                              <Trash2 className="h-4 w-4 text-destructive" />
+                            </Button>
+                          )}
+                        </div>
+                      </TableCell>
+                    )}
                   </TableRow>
                 ))
               )}
@@ -217,9 +281,9 @@ export default function ProfilesList() {
             <div className="text-sm text-muted-foreground text-center sm:text-left">
               {profilesResponse ? (
                 <span>
-                  Mostrando {totalEntries === 0 ? 0 : (page - 1) * perPage + 1} a{' '}
-                  {Math.min(page * perPage, totalEntries)} de{' '}
-                  {totalEntries} perfis
+                  Mostrando {totalEntries === 0 ? 0 : (page - 1) * perPage + 1}{' '}
+                  a {Math.min(page * perPage, totalEntries)} de {totalEntries}{' '}
+                  perfis
                 </span>
               ) : (
                 <span>Carregando informações...</span>
@@ -281,7 +345,10 @@ export default function ProfilesList() {
         }}
       />
 
-      <AlertDialog  open={!!profileToDelete} onOpenChange={(val) => !val && setProfileToDelete(null)}>
+      <AlertDialog
+        open={!!profileToDelete}
+        onOpenChange={(val) => !val && setProfileToDelete(null)}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogMedia className="bg-destructive/10 text-destructive">

@@ -10,6 +10,7 @@ import type {
   Profile,
   UpdateProfilePayload,
 } from '../types/profile';
+import { USER_PERMISSIONS_QUERY_KEY } from '@/shared/hooks/useUserPermissions';
 import type { PaginatedResponse } from '@/shared/types/responseApi';
 
 const emptyListing: PaginatedResponse<Profile> = {
@@ -47,12 +48,18 @@ export function useProfiles(params?: GetProfilesParams, options?: { enabled?: bo
 
   const updateMutation = useMutation({
     mutationFn: ({ id, data }: { id: number; data: UpdateProfilePayload }) => updateProfile(id, data),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['profiles'] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['profiles'] });
+      queryClient.invalidateQueries({ queryKey: [USER_PERMISSIONS_QUERY_KEY] });
+    },
   });
 
   const deleteMutation = useMutation({
     mutationFn: deleteProfile,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['profiles'] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['profiles'] });
+      queryClient.invalidateQueries({ queryKey: [USER_PERMISSIONS_QUERY_KEY] });
+    },
   });
 
   return {

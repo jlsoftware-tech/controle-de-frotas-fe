@@ -2,7 +2,7 @@ import type { PaginationParams, SortParams } from '@/shared/types/responseApi';
 
 export interface Permission {
   id: number;
-  name: string;
+  action: string;
   module: string;
   created_at?: string;
   updated_at?: string;

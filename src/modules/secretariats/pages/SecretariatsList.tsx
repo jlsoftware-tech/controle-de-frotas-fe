@@ -10,13 +10,7 @@ import {
   AlertDialogTitle,
 } from '@/shared/components/ui/alert-dialog';
 import { Button } from '@/shared/components/ui/button';
-import {
-  Card,
-  CardAction,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from '@/shared/components/ui/card';
+import { Card, CardAction, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
 import { Input } from '@/shared/components/ui/input';
 import {
   Pagination,
@@ -25,18 +19,22 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from '@/shared/components/ui/pagination';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/shared/components/ui/table';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/shared/components/ui/table';
 import useDebounce from '@/shared/hooks/useDebounce';
 import useToastLoading from '@/shared/hooks/useToastLoading';
+import useUserPermissions from '@/shared/hooks/useUserPermissions';
 import { useQueryClient } from '@tanstack/react-query';
-import { AlertTriangle, ArrowDown, ArrowUp, ArrowUpDown, Edit2, Landmark, Loader2, Search, Trash2 } from 'lucide-react';
+import {
+  AlertTriangle,
+  ArrowDown,
+  ArrowUp,
+  ArrowUpDown,
+  Edit2,
+  Landmark,
+  Loader2,
+  Search,
+  Trash2,
+} from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { SecretariatFormModal } from '../components/SecretariatFormModal';
@@ -57,9 +55,7 @@ export default function SecretariatsList() {
   const [editingSecretariat, setEditingSecretariat] = useState<Secretariat | null>(null);
   const [secretariatToDelete, setSecretariatToDelete] = useState<Secretariat | null>(null);
 
-  const { register, control, setValue } = useForm({
-    defaultValues: { search: '' },
-  });
+  const { register, control, setValue } = useForm({ defaultValues: { search: '' }});
 
   const searchValue = useWatch({ control, name: 'search' });
   const [debouncedSearch, setDebouncedSearch] = useState('');
@@ -102,6 +98,10 @@ export default function SecretariatsList() {
   const isDeleting = deleteMutation.isPending;
   const queryClient = useQueryClient();
   const toast = useToastLoading();
+  const { can } = useUserPermissions('secretariats');
+  const canUpdate = can('update');
+  const canDelete = can('delete');
+  const hasActions = canUpdate || canDelete;
 
   const pagination = secretariatsResponse?.pagination;
   const totalPages = pagination?.totalPages || 0;
@@ -109,8 +109,7 @@ export default function SecretariatsList() {
   const secretariats = secretariatsResponse?.items || [];
 
   const handlePreviousPage = () => setPage((old) => Math.max(old - 1, 1));
-  const handleNextPage = () =>
-    !isPlaceholderData && page < totalPages && setPage((old) => old + 1);
+  const handleNextPage = () => !isPlaceholderData && page < totalPages && setPage((old) => old + 1);
 
   return (
     <div className="flex flex-col gap-4">
@@ -140,18 +139,20 @@ export default function SecretariatsList() {
       <Card>
         <CardHeader>
           <CardTitle>Secretarias</CardTitle>
-          <CardAction>
-            <Button
-              onClick={() => {
-                setEditingSecretariat(null);
-                setIsModalOpen(true);
-              }}
-              className="px-3 sm:px-4"
-            >
-              <Landmark className="h-4 w-4 sm:mr-2" />
-              <span className="hidden sm:inline">Nova Secretaria</span>
-            </Button>
-          </CardAction>
+          {can('create') && (
+            <CardAction>
+              <Button
+                onClick={() => {
+                  setEditingSecretariat(null);
+                  setIsModalOpen(true);
+                }}
+                className="px-3 sm:px-4"
+              >
+                <Landmark className="h-4 w-4 sm:mr-2" />
+                <span className="hidden sm:inline">Nova Secretaria</span>
+              </Button>
+            </CardAction>
+          )}
         </CardHeader>
         <CardContent>
           <Table loading={isLoading}>
@@ -169,54 +170,74 @@ export default function SecretariatsList() {
                       {sort === field && isFetching ? (
                         <Loader2 className="h-3.5 w-3.5 animate-spin" />
                       ) : sort === field ? (
-                        order === 'asc' ? <ArrowUp className="h-3.5 w-3.5" /> : <ArrowDown className="h-3.5 w-3.5" />
+                        order === 'asc' ? (
+                          <ArrowUp className="h-3.5 w-3.5" />
+                        ) : (
+                          <ArrowDown className="h-3.5 w-3.5" />
+                        )
                       ) : (
                         <ArrowUpDown className="h-3.5 w-3.5 text-muted-foreground/50" />
                       )}
                     </button>
                   </TableHead>
                 ))}
-                <TableHead className="w-24 text-right">Ações</TableHead>
+                {hasActions && (
+                  <TableHead className="w-24 text-right">Ações</TableHead>
+                )}
               </TableRow>
             </TableHeader>
-            <TableBody className={isFetching ? 'opacity-60 transition-opacity' : 'transition-opacity'}>
+            <TableBody
+              className={
+                isFetching
+                  ? 'opacity-60 transition-opacity'
+                  : 'transition-opacity'
+              }
+            >
               {secretariats.length === 0 && !isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={4} className="h-24 text-center">
+                  <TableCell colSpan={hasActions ? 4 : 3} className="h-24 text-center">
                     Nenhuma secretaria encontrada.
                   </TableCell>
                 </TableRow>
               ) : (
                 secretariats.map((secretariat) => (
                   <TableRow key={secretariat.id}>
-                    <TableCell className="font-medium">
+                    <TableCell>
                       {secretariat.name}
                     </TableCell>
-                    <TableCell className="text-muted-foreground">
+                    <TableCell>
                       {secretariat.acronym}
                     </TableCell>
-                    <TableCell> {secretariat.created_at} </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        <Button
-                          variant="ghost"
-                          size="icon-xs"
-                          onClick={() => {
-                            setEditingSecretariat(secretariat);
-                            setIsModalOpen(true);
-                          }}
-                        >
-                          <Edit2 className="h-4 w-4 text-muted-foreground" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon-xs"
-                          onClick={() => setSecretariatToDelete(secretariat)}
-                        >
-                          <Trash2 className="h-4 w-4 text-destructive" />
-                        </Button>
-                      </div>
+                    <TableCell> 
+                      {secretariat.created_at} 
                     </TableCell>
+                    {hasActions && (
+                      <TableCell className="text-right">
+                        <div className="flex items-center justify-end gap-2">
+                          {canUpdate && (
+                            <Button
+                              variant="ghost"
+                              size="icon-xs"
+                              onClick={() => {
+                                setEditingSecretariat(secretariat);
+                                setIsModalOpen(true);
+                              }}
+                            >
+                              <Edit2 className="h-4 w-4 text-muted-foreground" />
+                            </Button>
+                          )}
+                          {canDelete && (
+                            <Button
+                              variant="ghost"
+                              size="icon-xs"
+                              onClick={() => setSecretariatToDelete(secretariat)}
+                            >
+                              <Trash2 className="h-4 w-4 text-destructive" />
+                            </Button>
+                          )}
+                        </div>
+                      </TableCell>
+                    )}
                   </TableRow>
                 ))
               )}
@@ -228,9 +249,9 @@ export default function SecretariatsList() {
             <div className="text-sm text-muted-foreground text-center sm:text-left">
               {secretariatsResponse ? (
                 <span>
-                  Mostrando {totalEntries === 0 ? 0 : (page - 1) * perPage + 1} a{' '}
-                  {Math.min(page * perPage, totalEntries)} de{' '}
-                  {totalEntries} secretarias
+                  Mostrando {totalEntries === 0 ? 0 : (page - 1) * perPage + 1}{' '}
+                  a {Math.min(page * perPage, totalEntries)} de {totalEntries}{' '}
+                  secretarias
                 </span>
               ) : (
                 <span>Carregando informações...</span>
@@ -304,8 +325,9 @@ export default function SecretariatsList() {
             <AlertDialogTitle>Excluir secretaria?</AlertDialogTitle>
             <AlertDialogDescription>
               Tem certeza que deseja excluir a secretaria{' '}
-              <strong>{secretariatToDelete?.name}</strong>? Usuários vinculados a
-              esta secretaria podem ser afetados. Essa ação não poderá ser desfeita.
+              <strong>{secretariatToDelete?.name}</strong>? Usuários vinculados
+              a esta secretaria podem ser afetados. Essa ação não poderá ser
+              desfeita.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

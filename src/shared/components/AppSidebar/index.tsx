@@ -1,4 +1,11 @@
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import logo from '@/assets/logo.png';
+import { useLogout } from '@/modules/auth/hooks/useLogout';
+import { useAuthStore } from '@/modules/auth/store/useAuthStore';
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/shared/components/ui/collapsible';
 import {
   Sidebar,
   SidebarContent,
@@ -11,30 +18,36 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarMenuSub,
-  SidebarMenuSubItem,
   SidebarMenuSubButton,
+  SidebarMenuSubItem,
 } from '@/shared/components/ui/sidebar';
+import { APP_ROUTES } from '@/shared/constants/urlRoutes';
+import { useTheme } from '@/shared/hooks/useTheme';
+import useToastLoading from '@/shared/hooks/useToastLoading';
+import { USER_PERMISSIONS_QUERY_KEY } from '@/shared/hooks/useUserPermissions';
+import { queryClient } from '@/shared/lib/react-query';
+import { cn } from '@/shared/lib/utils';
+import { useMenuStore } from '@/shared/store/useMenuStore';
 import { ChevronRight, LogOut, Moon, Sun } from 'lucide-react';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/shared/components/ui/collapsible';
-import logo from '@/assets/logo.png';
+import type { IconType } from 'react-icons';
 import * as FaIcons from 'react-icons/fa';
 import * as MdIcons from 'react-icons/md';
 import * as TbIcons from 'react-icons/tb';
-import type { IconType } from 'react-icons';
-import { useAuthStore } from '@/modules/auth/store/useAuthStore';
-import { useMenuStore } from '@/shared/store/useMenuStore';
-import { useTheme } from '@/shared/hooks/useTheme';
-import useToastLoading from '@/shared/hooks/useToastLoading';
-import { useLogout } from '@/modules/auth/hooks/useLogout';
-import { APP_ROUTES } from '@/shared/constants/urlRoutes';
-import { cn } from '@/shared/lib/utils';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 const FaIconMap = FaIcons as Record<string, IconType>;
 const MdIconMap = MdIcons as Record<string, IconType>;
 const TbIconMap = TbIcons as Record<string, IconType>;
 
-const DynamicIcon = ({ name, className }: { name: string; className?: string }) => {
-  const IconComponent = FaIconMap[name] || MdIconMap[name] || TbIconMap[name] || FaIcons.FaCircle;
+const DynamicIcon = ({
+  name,
+  className,
+}: {
+  name: string;
+  className?: string;
+}) => {
+  const IconComponent =
+    FaIconMap[name] || MdIconMap[name] || TbIconMap[name] || FaIcons.FaCircle;
   return <IconComponent className={className} />;
 };
 
@@ -69,11 +82,16 @@ export function AppSidebar() {
     const res = await logoutMutation();
     toast({ type: res.type, message: res.message });
     clearAuth();
+    queryClient.removeQueries({ queryKey: [USER_PERMISSIONS_QUERY_KEY] });
     navigate(APP_ROUTES.LOGIN);
   };
 
   return (
-    <Sidebar collapsible="icon" variant="inset" className="shadow-xl shadow-black/20">
+    <Sidebar
+      collapsible="icon"
+      variant="inset"
+      className="shadow-xl shadow-black/20"
+    >
       <SidebarHeader className="relative flex flex-col items-center justify-center gap-3 overflow-hidden border-b border-sidebar-border/60 py-6 group-data-[collapsible=icon]:py-4">
         <div className="pointer-events-none absolute inset-x-6 -top-12 h-24 rounded-full bg-sidebar-primary/15 blur-3xl" />
         <img
@@ -100,7 +118,10 @@ export function AppSidebar() {
             {isLoading ? (
               <div className="space-y-2 p-2">
                 {[...Array(3)].map((_, i) => (
-                  <div key={i} className="h-9 animate-pulse rounded-lg bg-sidebar-foreground/[0.06]" />
+                  <div
+                    key={i}
+                    className="h-9 animate-pulse rounded-lg bg-sidebar-foreground/[0.06]"
+                  />
                 ))}
               </div>
             ) : (
@@ -143,8 +164,14 @@ export function AppSidebar() {
                                   isActive={subItem.url === location.pathname}
                                   className="rounded-md text-sidebar-foreground/65 data-[active=true]:bg-sidebar-primary/10 data-[active=true]:font-medium data-[active=true]:text-sidebar-primary [&>svg]:data-[active=true]:text-sidebar-primary"
                                 >
-                                  <Link to={subItem.url} className="flex items-center gap-2">
-                                    <DynamicIcon name={subItem.icon} className="h-3.5 w-3.5 shrink-0" />
+                                  <Link
+                                    to={subItem.url}
+                                    className="flex items-center gap-2"
+                                  >
+                                    <DynamicIcon
+                                      name={subItem.icon}
+                                      className="h-3.5 w-3.5 shrink-0"
+                                    />
                                     <span>{subItem.name_sub_menu}</span>
                                   </Link>
                                 </SidebarMenuSubButton>
@@ -216,10 +243,16 @@ export function AppSidebar() {
           <SidebarMenuItem className="hidden group-data-[collapsible=icon]:block">
             <SidebarMenuButton
               onClick={toggleTheme}
-              tooltip={theme === 'light' ? 'Ativar tema escuro' : 'Ativar tema claro'}
+              tooltip={
+                theme === 'light' ? 'Ativar tema escuro' : 'Ativar tema claro'
+              }
               className="size-11 rounded-xl border border-sidebar-border/60 bg-black/20 transition-all duration-300 hover:border-sidebar-primary/30 hover:bg-sidebar-accent hover:text-sidebar-primary"
             >
-              {theme === 'light' ? <Moon className="size-5" /> : <Sun className="size-5" />}
+              {theme === 'light' ? (
+                <Moon className="size-5" />
+              ) : (
+                <Sun className="size-5" />
+              )}
             </SidebarMenuButton>
           </SidebarMenuItem>
 
@@ -231,8 +264,12 @@ export function AppSidebar() {
                 </div>
 
                 <div className="flex min-w-0 flex-1 flex-col group-data-[collapsible=icon]:hidden">
-                  <span className="truncate text-sm font-medium text-sidebar-foreground">{user.name}</span>
-                  <span className="truncate text-xs text-sidebar-primary">{user.profile?.name}</span>
+                  <span className="truncate text-sm font-medium text-sidebar-foreground">
+                    {user.name}
+                  </span>
+                  <span className="truncate text-xs text-sidebar-primary">
+                    {user.profile?.name}
+                  </span>
                 </div>
 
                 <button
