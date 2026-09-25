@@ -20,13 +20,13 @@ export function getSecretariats(params?: GetSecretariatsParams) {
 }
 
 export function createSecretariat(data: CreateSecretariatPayload) {
-  return postRequest<Secretariat>('/secretariats', data);
+  return postRequest<Secretariat>('secretariats', data);
 }
 
 export function updateSecretariat(id: number, data: UpdateSecretariatPayload) {
-  return putRequest<Secretariat>(`/secretariats/${id}`, data);
+  return putRequest<Secretariat>(`secretariats/${id}`, data);
 }
 
 export function deleteSecretariat(id: number) {
-  return deleteRequest(`/secretariats/${id}`);
+  return deleteRequest(`secretariats/${id}`);
 }
