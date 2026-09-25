@@ -4,22 +4,26 @@ import { loginSchema, type LoginFormValues } from '@/modules/auth/schemas/login.
 import useAuthStore from '@/modules/auth/store/useAuthStore';
 import { ThemeToggle } from '@/shared/components/ThemeToggle';
 import { Button } from '@/shared/components/ui/button';
+import { Checkbox } from '@/shared/components/ui/checkbox';
 import { Input, InputPassword } from '@/shared/components/ui/input';
+import { Label } from '@/shared/components/ui/label';
 import { APP_ROUTES } from '@/shared/constants/urlRoutes';
 import useToastLoading from '@/shared/hooks/useToastLoading';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Lock, Mail } from 'lucide-react';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
 
 export default function Login() {
   const navigate = useNavigate();
   const setToken = useAuthStore((s) => s.setToken);
   const setUser = useAuthStore((s) => s.setUser);
+  const setRemember = useAuthStore((s) => s.setRemember);
   const toast = useToastLoading();
 
   const {
     register,
+    control,
     handleSubmit,
     formState: { isSubmitting, errors },
   } = useForm<LoginFormValues>({
@@ -27,6 +31,7 @@ export default function Login() {
     defaultValues: {
       email: '',
       password: '',
+      remember: false,
     },
   });
 
@@ -36,6 +41,7 @@ export default function Login() {
     toast({ message: 'Entrando...' });
     const response = await loginMutation(data);
     if (response.success) {
+      setRemember(data.remember);
       setToken(response.data?.token || null);
       setUser(response.data?.user || null);
       navigate(APP_ROUTES.HOME);
@@ -139,7 +145,20 @@ export default function Login() {
                 message={errors.password?.message}
                 {...register('password')}
               />
-              <div className="flex justify-end">
+              <div className="flex items-center justify-between">
+                <Controller
+                  name="remember"
+                  control={control}
+                  render={({ field }) => (
+                    <Label className="cursor-pointer font-normal text-muted-foreground">
+                      <Checkbox
+                        checked={field.value}
+                        onCheckedChange={(checked) => field.onChange(checked === true)}
+                      />
+                      Lembrar-me
+                    </Label>
+                  )}
+                />
                 <Link
                   to={APP_ROUTES.FORGOT_PASSWORD}
                   className="text-sm font-medium text-primary hover:underline transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-sm"

@@ -8,4 +8,5 @@ export type LoginResponse = {
 export interface LoginPayload {
   email: string;
   password?: string;
+  remember?: boolean;
 }
