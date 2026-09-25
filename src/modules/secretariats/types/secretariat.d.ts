@@ -1,3 +1,5 @@
+import type { PaginationParams, SortParams } from '@/shared/types/responseApi';
+
 export interface Secretariat {
   id: number;
   name: string;
@@ -7,25 +9,7 @@ export interface Secretariat {
   deleted_at?: string | null;
 }
 
-export type GetSecretariatsParams = {
-  page?: number;
-  per_page?: number;
-  search?: string;
-  sort?: 'name' | 'acronym' | 'created_at';
-  order?: 'asc' | 'desc';
-};
-
-export type SecretariatsPagination = {
-  numPerPage: number;
-  currPage: number;
-  totalEntries: number;
-  totalPages: number;
-};
-
-export type SecretariatsListing = {
-  items: Secretariat[];
-  pagination: SecretariatsPagination;
-};
+export type GetSecretariatsParams = PaginationParams & SortParams<'name' | 'acronym' | 'created_at'>;
 
 export type CreateSecretariatPayload = {
   name: string;

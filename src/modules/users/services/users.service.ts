@@ -4,8 +4,8 @@ import type {
   GetUsersParams,
   UpdateUserPayload,
   User,
-  UsersListing,
 } from '../types/user';
+import type { PaginatedResponse } from '@/shared/types/responseApi';
 
 export function getUsers(params: GetUsersParams) {
   const query = new URLSearchParams({
@@ -15,7 +15,7 @@ export function getUsers(params: GetUsersParams) {
   if (params.search) query.append('search', params.search);
   if (params.sort) query.append('sort', params.sort);
   if (params.order) query.append('order', params.order);
-  return getRequest<UsersListing>(`users?${query.toString()}`);
+  return getRequest<PaginatedResponse<User>>(`users?${query.toString()}`);
 }
 
 export function createUser(data: CreateUserPayload) {

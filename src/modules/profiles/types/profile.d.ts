@@ -1,3 +1,5 @@
+import type { PaginationParams, SortParams } from '@/shared/types/responseApi';
+
 export interface Permission {
   id: number;
   name: string;
@@ -6,23 +8,7 @@ export interface Permission {
   updated_at?: string;
 }
 
-export type GetPermissionsParams = {
-  page?: number;
-  per_page?: number;
-  search?: string;
-};
-
-export type PermissionsPagination = {
-  numPerPage: number;
-  currPage: number;
-  totalEntries: number;
-  totalPages: number;
-};
-
-export type PermissionsListing = {
-  items: Permission[];
-  pagination: PermissionsPagination;
-};
+export type GetPermissionsParams = PaginationParams;
 
 export interface Profile {
   id: number;
@@ -33,13 +19,7 @@ export interface Profile {
   updated_at: string;
 }
 
-export type GetProfilesParams = {
-  page?: number;
-  per_page?: number;
-  search?: string;
-  sort?: 'name' | 'description' | 'created_at';
-  order?: 'asc' | 'desc';
-};
+export type GetProfilesParams = PaginationParams & SortParams<'name' | 'description' | 'created_at'>;
 
 export type CreateProfilePayload = {
   name: string;
@@ -48,15 +28,3 @@ export type CreateProfilePayload = {
 };
 
 export type UpdateProfilePayload = Partial<CreateProfilePayload>;
-
-export type ProfilesPagination = {
-  numPerPage: number;
-  currPage: number;
-  totalEntries: number;
-  totalPages: number;
-};
-
-export type ProfilesListing = {
-  items: Profile[];
-  pagination: ProfilesPagination;
-};

@@ -1,5 +1,6 @@
 import { deleteRequest, getRequest, postRequest, putRequest } from '@/shared/utils/axiosRequest';
-import type { CreateProfilePayload, GetProfilesParams, Profile, ProfilesListing, UpdateProfilePayload } from '../types/profile';
+import type { PaginatedResponse } from '@/shared/types/responseApi';
+import type { CreateProfilePayload, GetProfilesParams, Profile, UpdateProfilePayload } from '../types/profile';
 
 export function getProfiles(params?: GetProfilesParams) {
   const query = new URLSearchParams();
@@ -10,7 +11,7 @@ export function getProfiles(params?: GetProfilesParams) {
   if (params?.order) query.append('order', params.order);
 
   const qs = query.toString();
-  return getRequest<ProfilesListing>(`profiles${qs ? `?${qs}` : ''}`);
+  return getRequest<PaginatedResponse<Profile>>(`profiles${qs ? `?${qs}` : ''}`);
 }
 
 export function createProfile(data: CreateProfilePayload) {

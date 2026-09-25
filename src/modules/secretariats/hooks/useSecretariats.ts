@@ -1,13 +1,14 @@
-import type { GetSecretariatsParams, SecretariatsListing, UpdateSecretariatPayload } from '@/modules/secretariats/types/secretariat';
+import type { GetSecretariatsParams, Secretariat, UpdateSecretariatPayload } from '@/modules/secretariats/types/secretariat';
+import type { PaginatedResponse } from '@/shared/types/responseApi';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createSecretariat, deleteSecretariat, getSecretariats, updateSecretariat } from '../services/secretariats.service';
 
-const emptyListing: SecretariatsListing = {
+const emptyListing: PaginatedResponse<Secretariat> = {
   items: [],
   pagination: { numPerPage: 10, currPage: 1, totalEntries: 0, totalPages: 0 },
 };
 
-const fetchSecretariats = async (params: GetSecretariatsParams): Promise<SecretariatsListing> => {
+const fetchSecretariats = async (params: GetSecretariatsParams): Promise<PaginatedResponse<Secretariat>> => {
   const response = await getSecretariats(params);
   if (response.success && response.data) return response.data;
   return emptyListing;

@@ -7,16 +7,17 @@ import {
 } from '../services/profiles.service';
 import type {
   GetProfilesParams,
-  ProfilesListing,
+  Profile,
   UpdateProfilePayload,
 } from '../types/profile';
+import type { PaginatedResponse } from '@/shared/types/responseApi';
 
-const emptyListing: ProfilesListing = {
+const emptyListing: PaginatedResponse<Profile> = {
   items: [],
   pagination: { numPerPage: 10, currPage: 1, totalEntries: 0, totalPages: 0 },
 };
 
-const fetchProfiles = async (params?: GetProfilesParams): Promise<ProfilesListing> => {
+const fetchProfiles = async (params?: GetProfilesParams): Promise<PaginatedResponse<Profile>> => {
   const response = await getProfiles(params);
   if (response.success && response.data) return response.data;
   return emptyListing;

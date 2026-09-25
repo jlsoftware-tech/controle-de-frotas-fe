@@ -3,9 +3,9 @@ import type {
   CreateSecretariatPayload,
   GetSecretariatsParams,
   Secretariat,
-  SecretariatsListing,
   UpdateSecretariatPayload,
 } from '../types/secretariat';
+import type { PaginatedResponse } from '@/shared/types/responseApi';
 
 export function getSecretariats(params?: GetSecretariatsParams) {
   const query = new URLSearchParams();
@@ -16,7 +16,7 @@ export function getSecretariats(params?: GetSecretariatsParams) {
   if (params?.order) query.append('order', params.order);
 
   const qs = query.toString();
-  return getRequest<SecretariatsListing>(`/secretariats${qs ? `?${qs}` : ''}`);
+  return getRequest<PaginatedResponse<Secretariat>>(`/secretariats${qs ? `?${qs}` : ''}`);
 }
 
 export function createSecretariat(data: CreateSecretariatPayload) {

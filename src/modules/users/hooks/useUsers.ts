@@ -1,13 +1,14 @@
-import type { GetUsersParams, UpdateUserPayload, UsersListing } from '@/modules/users/types/user';
+import type { GetUsersParams, UpdateUserPayload, User } from '@/modules/users/types/user';
+import type { PaginatedResponse } from '@/shared/types/responseApi';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createUser, deleteUser, getUsers, updateUser } from '../services/users.service';
 
-const emptyListing: UsersListing = {
+const emptyListing: PaginatedResponse<User> = {
   items: [],
   pagination: { numPerPage: 10, currPage: 1, totalEntries: 0, totalPages: 0 },
 };
 
-const fetchUsers = async (params: GetUsersParams): Promise<UsersListing> => {
+const fetchUsers = async (params: GetUsersParams): Promise<PaginatedResponse<User>> => {
   const response = await getUsers(params);
   if (response.success && response.data) return response.data;
   return emptyListing;

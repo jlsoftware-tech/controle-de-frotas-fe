@@ -1,88 +1,57 @@
 import getAxios from '@/shared/lib/axios';
-import axios, { AxiosError } from 'axios';
-import type { ApiResponse } from '../types/responseApi';
+import axios, { type AxiosInstance } from 'axios';
+import type { ApiEnvelope, ApiResponse, ValidationErrors } from '../types/responseApi';
 
 function handleError(err: unknown): ApiResponse<never> {
-  if (axios.isAxiosError(err)) {
-    const axiosError = err as AxiosError<{ message?: string; error?: unknown }>;
+  if (axios.isAxiosError<Partial<ApiEnvelope<unknown>>>(err)) {
+    const body = err.response?.data;
+    const status = body?.status_code ?? err.response?.status;
     return {
       success: false,
-      message: axiosError.response?.data?.message ?? 'Erro na requisição',
-      error: axiosError.response?.data?.error ?? err,
+      status_code: status,
+      message: body?.message ?? 'Erro na requisição',
+      errors: status === 422 ? (body?.data as ValidationErrors | undefined) : undefined,
       type: 'error',
-      status_code: axiosError.response?.status,
     };
   }
   return {
     success: false,
     message: 'Erro inesperado',
-    error: err,
     type: 'error',
-    status_code: undefined,
   };
 }
 
-export async function postRequest<T>(url: string, body: unknown): Promise<ApiResponse<T>> {
-  const axios = getAxios();
+async function request<T>(call: (instance: AxiosInstance) => Promise<{ data: ApiEnvelope<T> }>): Promise<ApiResponse<T>> {
   try {
-    const { data } = await axios.post<ApiResponse<T>>(url, body);
+    const { data } = await call(getAxios());
     return {
-      ...data,
       success: true,
-      message: data.message,
-      type: 'success',
       status_code: data.status_code,
+      message: data.message,
+      data: data.data ?? undefined,
+      type: 'success',
     };
   } catch (err: unknown) {
     return handleError(err);
   }
 }
 
-export async function getRequest<T>(url: string): Promise<ApiResponse<T>> {
-  const axios = getAxios();
-  try {
-    const { data } = await axios.get<ApiResponse<T>>(url);
-    return { ...data, success: true, message: data.message, type: 'success' };
-  } catch (err: unknown) {
-    return handleError(err);
-  }
+export function getRequest<T>(url: string): Promise<ApiResponse<T>> {
+  return request<T>((api) => api.get(url));
 }
 
-export async function deleteRequest<T>(
-  url: string,
-  body?: unknown
-): Promise<ApiResponse<T>> {
-  const axios = getAxios();
-  try {
-    const { data } = await axios.delete<ApiResponse<T>>(url, { data: body });
-    return { ...data, success: true, message: data.message, type: 'success' };
-  } catch (err: unknown) {
-    return handleError(err);
-  }
+export function postRequest<T>(url: string, body: unknown): Promise<ApiResponse<T>> {
+  return request<T>((api) => api.post(url, body));
 }
 
-export async function putRequest<T>(
-  url: string,
-  body: unknown
-): Promise<ApiResponse<T>> {
-  const axios = getAxios();
-  try {
-    const { data } = await axios.put<ApiResponse<T>>(url, body);
-    return { ...data, success: true, message: data.message, type: 'success' };
-  } catch (err: unknown) {
-    return handleError(err);
-  }
+export function putRequest<T>(url: string, body: unknown): Promise<ApiResponse<T>> {
+  return request<T>((api) => api.put(url, body));
 }
 
-export async function patchRequest<T = unknown>(
-  url: string,
-  body?: unknown
-): Promise<ApiResponse<T>> {
-  const axios = getAxios();
-  try {
-    const { data } = await axios.patch<ApiResponse<T>>(url, body);
-    return { ...data, success: true, message: data.message, type: 'success' };
-  } catch (err: unknown) {
-    return handleError(err);
-  }
+export function patchRequest<T = unknown>(url: string, body?: unknown): Promise<ApiResponse<T>> {
+  return request<T>((api) => api.patch(url, body));
+}
+
+export function deleteRequest<T = unknown>(url: string, body?: unknown): Promise<ApiResponse<T>> {
+  return request<T>((api) => api.delete(url, { data: body }));
 }

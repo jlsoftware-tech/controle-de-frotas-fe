@@ -1,5 +1,6 @@
 import { getRequest } from '@/shared/utils/axiosRequest';
-import type { GetPermissionsParams, PermissionsListing } from '../types/profile';
+import type { PaginatedResponse } from '@/shared/types/responseApi';
+import type { GetPermissionsParams, Permission } from '../types/profile';
 
 export function getPermissions(params?: GetPermissionsParams) {
   const query = new URLSearchParams();
@@ -8,5 +9,5 @@ export function getPermissions(params?: GetPermissionsParams) {
   if (params?.search) query.append('search', params.search);
 
   const qs = query.toString();
-  return getRequest<PermissionsListing>(`permissions${qs ? `?${qs}` : ''}`);
+  return getRequest<PaginatedResponse<Permission>>(`permissions${qs ? `?${qs}` : ''}`);
 }

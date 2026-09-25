@@ -1,3 +1,5 @@
+import type { PaginationParams, SortParams } from '@/shared/types/responseApi';
+
 export type User = {
   id: number;
   name: string;
@@ -27,22 +29,6 @@ export type CreateUserPayload = {
 
 export type UpdateUserPayload = Partial<CreateUserPayload>;
 
-export type GetUsersParams = {
-  page: number;
-  per_page: number;
-  search?: string;
-  sort?: 'name' | 'email' | 'profile_id' | 'created_at';
-  order?: 'asc' | 'desc';
-};
-
-export type UsersPagination = {
-  numPerPage: number;
-  currPage: number;
-  totalEntries: number;
-  totalPages: number;
-};
-
-export type UsersListing = {
-  items: User[];
-  pagination: UsersPagination;
-};
+export type GetUsersParams = Required<Pick<PaginationParams, 'page' | 'per_page'>> &
+  PaginationParams &
+  SortParams<'name' | 'email' | 'profile_id' | 'created_at'>;
