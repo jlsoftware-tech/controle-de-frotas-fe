@@ -12,6 +12,7 @@ const ResetPassword = lazy(() => import('@/modules/auth/pages/ResetPassword'));
 const UsersList = lazy(() => import('@/modules/users/pages/UsersList'));
 const ProfilesList = lazy(() => import('@/modules/profiles/pages/ProfilesList'));
 const SecretariatsList = lazy(() => import('@/modules/secretariats/pages/SecretariatsList'));
+const Settings = lazy(() => import('@/modules/settings/pages/Settings'));
 
 function Router(): React.JSX.Element {
   const router = createBrowserRouter([
@@ -54,6 +55,10 @@ function Router(): React.JSX.Element {
         {
           path: APP_ROUTES.SECRETARIATS,
           element: <SecretariatsList />,
+        },
+        {
+          path: APP_ROUTES.SETTINGS,
+          element: <Settings />,
         },
       ],
     },

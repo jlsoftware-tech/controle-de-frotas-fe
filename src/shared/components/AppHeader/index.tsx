@@ -17,6 +17,16 @@ function buildBreadcrumbs(items: NavigationResponse, pathname: string): Breadcru
   if (pathname === APP_ROUTES.HOME)
     return [{ title: 'Dashboard', url: APP_ROUTES.HOME }];
 
+  if (pathname === APP_ROUTES.SETTINGS)
+    return [
+      { title: 'Dashboard', url: APP_ROUTES.HOME },
+      {
+        title: 'Configurações',
+        url: APP_ROUTES.SETTINGS,
+        description: 'Gerencie seus dados pessoais e sua senha de acesso',
+      },
+    ];
+
   for (const item of items) {
     const subItem = item.sub_menu?.find((sub) => sub.url === pathname);
     if (subItem) {

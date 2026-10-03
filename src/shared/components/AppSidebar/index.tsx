@@ -26,7 +26,7 @@ import useNavigationMenu from '@/shared/hooks/useNavigationMenu';
 import { useTheme } from '@/shared/hooks/useTheme';
 import useToastLoading from '@/shared/hooks/useToastLoading';
 import { cn } from '@/shared/lib/utils';
-import { ChevronRight, LogOut, Moon, Sun } from 'lucide-react';
+import { ChevronRight, LogOut, Moon, Settings, Sun } from 'lucide-react';
 import type { IconType } from 'react-icons';
 import * as FaIcons from 'react-icons/fa';
 import * as MdIcons from 'react-icons/md';
@@ -255,9 +255,13 @@ export function AppSidebar() {
           {user && (
             <SidebarMenuItem>
               <div className="flex items-center gap-3 rounded-xl px-2.5 py-2.5 transition-colors hover:bg-sidebar-foreground/[0.05] group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-0 group-data-[collapsible=icon]:hover:bg-transparent">
-                <div className="flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-sidebar-primary text-sm font-bold text-sidebar-primary-foreground shadow-sm ring-2 ring-sidebar-primary/25">
+                <Link
+                  to={APP_ROUTES.SETTINGS}
+                  title="Configurações"
+                  className="flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-sidebar-primary text-sm font-bold text-sidebar-primary-foreground shadow-sm ring-2 ring-sidebar-primary/25"
+                >
                   {user.name?.charAt(0).toUpperCase()}
-                </div>
+                </Link>
 
                 <div className="flex min-w-0 flex-1 flex-col group-data-[collapsible=icon]:hidden">
                   <span className="truncate text-sm font-medium text-sidebar-foreground">
@@ -267,6 +271,19 @@ export function AppSidebar() {
                     {user.profile?.name}
                   </span>
                 </div>
+
+                <Link
+                  to={APP_ROUTES.SETTINGS}
+                  title="Configurações"
+                  className={cn(
+                    'flex size-8 shrink-0 items-center justify-center rounded-lg transition-colors duration-200 hover:bg-sidebar-foreground/[0.08] hover:text-sidebar-foreground group-data-[collapsible=icon]:hidden',
+                    location.pathname === APP_ROUTES.SETTINGS
+                      ? 'text-sidebar-primary'
+                      : 'text-sidebar-foreground/40'
+                  )}
+                >
+                  <Settings className="size-4" />
+                </Link>
 
                 <button
                   type="button"

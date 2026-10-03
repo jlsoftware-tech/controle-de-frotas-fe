@@ -3,6 +3,7 @@ export const APP_ROUTES = {
   USERS: '/usuarios',
   PROFILES: '/perfis',
   SECRETARIATS: '/secretarias',
+  SETTINGS: '/configuracoes',
   LOGIN: '/login',
   FORGOT_PASSWORD: '/recuperar-senha',
   RESET_PASSWORD: '/redefinir-senha',
